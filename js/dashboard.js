@@ -18,6 +18,7 @@ async function init() {
   setupTabs();
   setupSaveButton();
   setupLogout();
+  setupMobileMenu();
   initStarfield();
   await loadGuilds();
 }
@@ -33,8 +34,24 @@ function setupTabs() {
       tab.classList.add("active");
       document.getElementById("tab-" + target).classList.add("active");
       document.getElementById("tab-heading").textContent = tab.querySelector(".nav-label").textContent;
+      closeSidebar();
     });
   });
+}
+
+function openSidebar() {
+  document.querySelector(".sidebar").classList.add("open");
+  document.getElementById("sidebar-backdrop").classList.add("open");
+}
+
+function closeSidebar() {
+  document.querySelector(".sidebar").classList.remove("open");
+  document.getElementById("sidebar-backdrop").classList.remove("open");
+}
+
+function setupMobileMenu() {
+  document.getElementById("menu-toggle").addEventListener("click", openSidebar);
+  document.getElementById("sidebar-backdrop").addEventListener("click", closeSidebar);
 }
 
 function setupSaveButton() {
