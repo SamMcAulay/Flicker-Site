@@ -431,12 +431,13 @@ function initStarfield() {
   const resize = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    stars = Array.from({ length: 120 }, () => ({
+    stars = Array.from({ length: 80 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      r: Math.random() * 1.2 + 0.2,
+      r: Math.random() * 1.0 + 0.1,
       phase: Math.random() * Math.PI * 2,
-      speed: Math.random() * 0.8 + 0.3,
+      speed: Math.random() * 0.5 + 0.15,
+      drift: (Math.random() - 0.5) * 0.04,
     }));
   };
 
@@ -444,10 +445,13 @@ function initStarfield() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     const t = Date.now() / 1000;
     for (const s of stars) {
-      const alpha = 0.15 + 0.25 * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+      const alpha = 0.03 + 0.10 * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+      s.y -= 0.04;
+      s.x += s.drift;
+      if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
       ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(180, 160, 255, ${alpha})`;
+      ctx.rect(s.x, s.y, s.r * 1.4, s.r * 1.4);
+      ctx.fillStyle = `rgba(200, 100, 30, ${alpha})`;
       ctx.fill();
     }
     requestAnimationFrame(draw);
