@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flicker — Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <canvas id="starfield"></canvas>
+
+  <div class="dashboard-layout">
+
+    <!-- ── Sidebar ─────────────────────────────────── -->
+    <aside class="sidebar">
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <span class="sidebar-bolt">⚡</span>
+          <span class="sidebar-name">FLICKER</span>
+        </div>
+
+        <p class="guild-label">Server</p>
+        <select id="guild-selector" class="guild-selector">
+          <option value="">Loading servers…</option>
+        </select>
+      </div>
+
+      <nav class="sidebar-nav">
+        <p class="nav-section-label">Settings</p>
+
+        <button class="nav-tab active" data-tab="toggles">
+          <span class="nav-icon">⚡</span>
+          <span class="nav-label">Toggles</span>
+        </button>
+
+        <button class="nav-tab" data-tab="economy">
+          <span class="nav-icon">💰</span>
+          <span class="nav-label">Economy</span>
+        </button>
+
+        <button class="nav-tab" data-tab="responder">
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">Auto-Responder</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <span id="status" class="status loading">Connecting…</span>
+        <button id="logout-btn" class="btn-logout">
+          <span>↩</span> Log out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Main ────────────────────────────────────── -->
+    <main class="main">
+      <header class="main-header">
+        <h1 id="tab-heading">Toggles</h1>
+        <button id="save-btn" class="btn-save" disabled>Save Changes</button>
+      </header>
+
+      <div class="main-body">
+
+        <!-- Loading overlay -->
+        <div id="loading-overlay">
+          <div class="loading-spinner"></div>
+        </div>
+
+        <!-- ── Toggles Tab ────────────────────────── -->
+        <div id="tab-toggles" class="tab-panel active">
+          <div class="toggles-sections">
+            <div class="toggle-section" id="section-games"></div>
+            <div class="toggle-section" id="section-events"></div>
+            <div class="toggle-section" id="section-commands"></div>
+          </div>
+        </div>
+
+        <!-- ── Economy Tab ────────────────────────── -->
+        <div id="tab-economy" class="tab-panel">
+          <!-- rendered by dashboard.js -->
+        </div>
+
+        <!-- ── Auto-Responder Tab ─────────────────── -->
+        <div id="tab-responder" class="tab-panel">
+          <!-- rendered by dashboard.js -->
+        </div>
+
+      </div><!-- /main-body -->
+    </main>
+
+  </div><!-- /dashboard-layout -->
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
