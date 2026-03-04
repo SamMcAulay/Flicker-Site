@@ -219,31 +219,59 @@ function buildToggleSection(containerId, title, items, toggleMap) {
 const ECONOMY_FIELDS = [
   {
     key: "slots_jackpot",
-    label: "Slots Jackpot Multiplier",
-    default: 10,
-    min: 1, max: 100, step: 1,
-    desc: "Payout multiplier for the 💎💎💎 jackpot. Default: 10×",
-  },
-  {
-    key: "hilo_step",
-    label: "HiLo Step Increment",
-    default: 0.2,
-    min: 0.1, max: 2.0, step: 0.1,
-    desc: "Multiplier added per correct guess in HiLo. Default: +0.2× per step",
+    label: "Slots — Jackpot Multiplier (💎💎💎)",
+    default: 10, min: 1, max: 100, step: 1,
+    desc: "Payout for the diamond jackpot combo. Default: 10×",
   },
   {
     key: "coinflip_multiplier",
-    label: "Coinflip Win Multiplier",
-    default: 2.0,
-    min: 1.1, max: 10.0, step: 0.1,
-    desc: "Payout multiplier for a winning coin flip. Default: 2.0×",
+    label: "Coinflip — Win Multiplier",
+    default: 2.0, min: 1.1, max: 10.0, step: 0.1,
+    desc: "Payout for a winning flip. Default: 2.0×",
+  },
+  {
+    key: "blackjack_win_multiplier",
+    label: "Blackjack — Win Multiplier",
+    default: 2.0, min: 1.1, max: 5.0, step: 0.1,
+    desc: "Payout for beating the dealer. Default: 2.0×",
+  },
+  {
+    key: "blackjack_natural_multiplier",
+    label: "Blackjack — Natural 21 Multiplier",
+    default: 2.5, min: 1.5, max: 10.0, step: 0.1,
+    desc: "Payout for an instant blackjack (21 on deal). Default: 2.5×",
+  },
+  {
+    key: "hilo_step",
+    label: "HiLo — Multiplier Step",
+    default: 0.2, min: 0.1, max: 2.0, step: 0.1,
+    desc: "Multiplier added per correct guess. Default: +0.2× per step",
+  },
+  {
+    key: "roulette_color_multiplier",
+    label: "Roulette — Color / Even-Odd Multiplier",
+    default: 1.9, min: 1.1, max: 5.0, step: 0.1,
+    desc: "Payout for red/black/odd/even bets. Default: 1.9×",
+  },
+  {
+    key: "roulette_number_multiplier",
+    label: "Roulette — Straight-Up Number Multiplier",
+    default: 35.0, min: 10.0, max: 100.0, step: 1,
+    desc: "Payout for betting on a specific number (0–36). Default: 35×",
+  },
+  {
+    key: "warp_multiplier_step",
+    label: "Warp — Multiplier Per Jump",
+    default: 1.5, min: 1.1, max: 5.0, step: 0.1,
+    desc: "How much the multiplier grows with each warp jump. Default: 1.5× per jump",
   },
 ];
 
 function renderEconomyTab(settings) {
   const po = settings.payout_overrides;
   const container = document.getElementById("tab-economy");
-  container.innerHTML = "";
+  container.innerHTML = '<div class="economy-fields"></div>';
+  const fields = container.querySelector(".economy-fields");
 
   ECONOMY_FIELDS.forEach((field) => {
     const value = po[field.key] ?? field.default;
@@ -266,7 +294,7 @@ function renderEconomyTab(settings) {
       div.querySelector("input").value = field.default;
       markDirty();
     });
-    container.appendChild(div);
+    fields.appendChild(div);
   });
 }
 

@@ -620,7 +620,7 @@ body {
    ECONOMY TAB
    ══════════════════════════════════════════════════════ */
 
-#tab-economy {
+.economy-fields {
   display: flex;
   flex-direction: column;
   gap: 20px;
