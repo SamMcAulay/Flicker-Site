@@ -7,40 +7,40 @@
 
 /* ── Custom Properties ─────────────────────────────── */
 :root {
-  --bg:           #0a0806;
-  --surface:      #110d09;
-  --surface-2:    #1a1108;
-  --surface-3:    #231710;
+  --bg:           #0e0b07;
+  --surface:      #181008;
+  --surface-2:    #221608;
+  --surface-3:    #2c1e0c;
 
-  --border:       #2a1a0e;
-  --border-2:     #462a16;
+  --border:       #3e2410;
+  --border-2:     #6a3c1a;
 
-  --rust:         #7c2e0e;
-  --amber:        #c96b18;
-  --amber-bright: #e07f20;
-  --amber-dim:    rgba(201, 107, 24, 0.10);
-  --amber-line:   rgba(201, 107, 24, 0.20);
+  --rust:         #c04a18;
+  --amber:        #f08428;
+  --amber-bright: #f9a050;
+  --amber-dim:    rgba(240, 132, 40, 0.13);
+  --amber-line:   rgba(240, 132, 40, 0.28);
 
-  --on:           #d4751a;
-  --on-dim:       rgba(212, 117, 26, 0.08);
-  --off:          #1e1208;
+  --on:           #f08428;
+  --on-dim:       rgba(240, 132, 40, 0.10);
+  --off:          #221408;
 
-  --text:         #c4ae8e;
-  --text-2:       #6e5438;
-  --text-3:       #3a2416;
+  --text:         #f2e0c4;
+  --text-2:       #b08050;
+  --text-3:       #6a4828;
 
-  --success:      #6a9448;
-  --success-dim:  rgba(106, 148, 72, 0.10);
-  --danger:       #b83a20;
-  --danger-dim:   rgba(184, 58, 32, 0.10);
-  --warn:         #c96b18;
+  --success:      #7ec84c;
+  --success-dim:  rgba(126, 200, 76, 0.12);
+  --danger:       #e04828;
+  --danger-dim:   rgba(224, 72, 40, 0.12);
+  --warn:         #f08428;
 
   --sidebar-w:    256px;
   --font-brand:   'Bebas Neue', sans-serif;
   --font-ui:      'Saira', sans-serif;
   --font-mono:    'Courier Prime', monospace;
-  --radius:       0px;
-  --radius-sm:    0px;
+  --radius:       5px;
+  --radius-sm:    3px;
 }
 
 /* ── Reset & Base ──────────────────────────────────── */
@@ -258,7 +258,7 @@ body::after {
   background-position: right 10px center;
   padding-right: 30px;
   transition: border-color 0.08s;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .guild-selector:focus {
@@ -621,7 +621,7 @@ body::after {
   font-weight: 700;
   transition: border-color 0.08s;
   text-align: center;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .number-input:focus {
@@ -646,7 +646,7 @@ body::after {
   font-family: var(--font-ui);
   cursor: pointer;
   transition: color 0.08s, border-color 0.08s;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .btn-reset:hover {
@@ -689,7 +689,7 @@ body::after {
   font-family: var(--font-ui);
   font-size: 13px;
   transition: border-color 0.08s;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .text-input::placeholder { color: var(--text-3); }
@@ -712,7 +712,7 @@ body::after {
   transition: background 0.08s;
   flex-shrink: 0;
   height: 38px;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .btn-add:hover { background: var(--amber); color: #0a0806; }
@@ -774,7 +774,7 @@ body::after {
   font-size: 11px;
   cursor: pointer;
   transition: background 0.08s, color 0.08s, border-color 0.08s;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .btn-delete:hover {
@@ -814,7 +814,7 @@ body::after {
   transition: opacity 0.1s, transform 0.1s;
   pointer-events: none;
   max-width: 300px;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 
 .toast.show { opacity: 1; transform: translateY(0); }
