@@ -769,8 +769,8 @@ body::after {
   height: 26px;
   flex-shrink: 0;
   background: transparent;
-  border: 1px solid transparent;
-  color: var(--text-3);
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
   font-size: 11px;
   cursor: pointer;
   transition: background 0.08s, color 0.08s, border-color 0.08s;
