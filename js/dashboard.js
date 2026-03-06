@@ -239,54 +239,46 @@ function buildToggleSection(containerId, title, items, toggleMap) {
 
 // ── Economy Tab ───────────────────────────────────────
 
-const ECONOMY_FIELDS = [
+const ECONOMY_SECTIONS = [
   {
-    key: "slots_jackpot",
-    label: "Slots — Jackpot Multiplier (💎💎💎)",
-    default: 10, min: 1, max: 100, step: 1,
-    desc: "Payout for the diamond jackpot combo. Default: 10×",
+    title: "Slots",
+    fields: [
+      { key: "slots_jackpot",          label: "Jackpot (💎💎💎)", default: 10,  min: 1, max: 100, step: 1,   unit: "×", desc: "Diamond jackpot multiplier. Default: 10×" },
+      { key: "slots_star_multiplier",  label: "Star (⭐⭐⭐)",    default: 5,   min: 1, max: 50,  step: 1,   unit: "×", desc: "Star triple multiplier. Default: 5×" },
+      { key: "slots_fruit_multiplier", label: "Fruit (🍋🍋🍋)",   default: 3,   min: 1, max: 20,  step: 1,   unit: "×", desc: "Fruit triple multiplier. Default: 3×" },
+      { key: "slots_cherry_multiplier",label: "Cherry (🍒🍒🍒)",  default: 2,   min: 1, max: 10,  step: 1,   unit: "×", desc: "Cherry triple multiplier. Default: 2×" },
+    ],
   },
   {
-    key: "coinflip_multiplier",
-    label: "Coinflip — Win Multiplier",
-    default: 2.0, min: 1.1, max: 10.0, step: 0.1,
-    desc: "Payout for a winning flip. Default: 2.0×",
+    title: "Other Games",
+    fields: [
+      { key: "coinflip_multiplier",          label: "Coinflip — Win",             default: 2.0,  min: 1.1, max: 10.0, step: 0.1, unit: "×", desc: "Payout for a winning flip. Default: 2.0×" },
+      { key: "blackjack_win_multiplier",     label: "Blackjack — Win",            default: 2.0,  min: 1.1, max: 5.0,  step: 0.1, unit: "×", desc: "Payout for beating the dealer. Default: 2.0×" },
+      { key: "blackjack_natural_multiplier", label: "Blackjack — Natural 21",     default: 2.5,  min: 1.5, max: 10.0, step: 0.1, unit: "×", desc: "Payout for an instant blackjack. Default: 2.5×" },
+      { key: "hilo_step",                    label: "HiLo — Step",                default: 0.2,  min: 0.1, max: 2.0,  step: 0.1, unit: "×", desc: "Multiplier added per correct guess. Default: +0.2×" },
+      { key: "roulette_color_multiplier",    label: "Roulette — Color / Even-Odd",default: 1.9,  min: 1.1, max: 5.0,  step: 0.1, unit: "×", desc: "Red/black/odd/even payout. Default: 1.9×" },
+      { key: "roulette_number_multiplier",   label: "Roulette — Straight Number", default: 35,   min: 10,  max: 100,  step: 1,   unit: "×", desc: "Specific number bet payout. Default: 35×" },
+      { key: "warp_multiplier_step",         label: "Warp — Multiplier Per Jump", default: 1.5,  min: 1.1, max: 5.0,  step: 0.1, unit: "×", desc: "Multiplier growth per warp jump. Default: 1.5×" },
+    ],
   },
   {
-    key: "blackjack_win_multiplier",
-    label: "Blackjack — Win Multiplier",
-    default: 2.0, min: 1.1, max: 5.0, step: 0.1,
-    desc: "Payout for beating the dealer. Default: 2.0×",
+    title: "Drop Event",
+    fields: [
+      { type: "range", label: "1st Place", minKey: "drop_1_min", maxKey: "drop_1_max", minDefault: 10, maxDefault: 12, min: 1, max: 500, step: 1, unit: "✨", desc: "Stardust range for the first catcher. Default: 10–12" },
+      { type: "range", label: "2nd Place", minKey: "drop_2_min", maxKey: "drop_2_max", minDefault: 8,  maxDefault: 10, min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 8–10" },
+      { type: "range", label: "3rd Place", minKey: "drop_3_min", maxKey: "drop_3_max", minDefault: 6,  maxDefault: 8,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 6–8" },
+      { type: "range", label: "4th Place", minKey: "drop_4_min", maxKey: "drop_4_max", minDefault: 4,  maxDefault: 6,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 4–6" },
+      { type: "range", label: "5th Place", minKey: "drop_5_min", maxKey: "drop_5_max", minDefault: 1,  maxDefault: 4,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 1–4" },
+    ],
   },
   {
-    key: "blackjack_natural_multiplier",
-    label: "Blackjack — Natural 21 Multiplier",
-    default: 2.5, min: 1.5, max: 10.0, step: 0.1,
-    desc: "Payout for an instant blackjack (21 on deal). Default: 2.5×",
-  },
-  {
-    key: "hilo_step",
-    label: "HiLo — Multiplier Step",
-    default: 0.2, min: 0.1, max: 2.0, step: 0.1,
-    desc: "Multiplier added per correct guess. Default: +0.2× per step",
-  },
-  {
-    key: "roulette_color_multiplier",
-    label: "Roulette — Color / Even-Odd Multiplier",
-    default: 1.9, min: 1.1, max: 5.0, step: 0.1,
-    desc: "Payout for red/black/odd/even bets. Default: 1.9×",
-  },
-  {
-    key: "roulette_number_multiplier",
-    label: "Roulette — Straight-Up Number Multiplier",
-    default: 35.0, min: 10.0, max: 100.0, step: 1,
-    desc: "Payout for betting on a specific number (0–36). Default: 35×",
-  },
-  {
-    key: "warp_multiplier_step",
-    label: "Warp — Multiplier Per Jump",
-    default: 1.5, min: 1.1, max: 5.0, step: 0.1,
-    desc: "How much the multiplier grows with each warp jump. Default: 1.5× per jump",
+    title: "Random Events",
+    fields: [
+      { type: "range", label: "Fast Type",     minKey: "fast_type_min",    maxKey: "fast_type_max",    minDefault: 10, maxDefault: 20,  min: 1, max: 500, step: 1, unit: "✨", desc: "Stardust reward for Fast Type. Default: 10–20" },
+      { type: "range", label: "Math Puzzle",   minKey: "math_min",         maxKey: "math_max",         minDefault: 20, maxDefault: 40,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 20–40" },
+      { type: "range", label: "Trivia",        minKey: "trivia_min",       maxKey: "trivia_max",       minDefault: 50, maxDefault: 100, min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 50–100" },
+      { type: "range", label: "Word Scramble", minKey: "word_scramble_min",maxKey: "word_scramble_max",minDefault: 15, maxDefault: 30,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 15–30" },
+    ],
   },
 ];
 
@@ -296,28 +288,64 @@ function renderEconomyTab(settings) {
   container.innerHTML = '<div class="economy-fields"></div>';
   const fields = container.querySelector(".economy-fields");
 
-  ECONOMY_FIELDS.forEach((field) => {
-    const value = po[field.key] ?? field.default;
-    const div = document.createElement("div");
-    div.className = "economy-field";
-    div.innerHTML = `
-      <div class="ef-header">
-        <label class="ef-label">${field.label}</label>
-        <button class="btn-reset" data-default="${field.default}" title="Reset to default">Reset to ${field.default}</button>
-      </div>
-      <p class="ef-desc">${field.desc}</p>
-      <div class="ef-input-row">
-        <input type="number" class="number-input" data-key="${field.key}"
-          value="${value}" min="${field.min}" max="${field.max}" step="${field.step}">
-        <span class="ef-unit">×</span>
-      </div>
-    `;
-    div.querySelector("input").addEventListener("input", markDirty);
-    div.querySelector(".btn-reset").addEventListener("click", () => {
-      div.querySelector("input").value = field.default;
-      markDirty();
+  ECONOMY_SECTIONS.forEach((section) => {
+    const heading = document.createElement("h3");
+    heading.className = "section-title";
+    heading.innerHTML = `<span class="section-pip"></span>${section.title}`;
+    fields.appendChild(heading);
+
+    section.fields.forEach((field) => {
+      const div = document.createElement("div");
+      div.className = "economy-field";
+
+      if (field.type === "range") {
+        const minVal = po[field.minKey] ?? field.minDefault;
+        const maxVal = po[field.maxKey] ?? field.maxDefault;
+        div.innerHTML = `
+          <div class="ef-header">
+            <label class="ef-label">${field.label}</label>
+            <button class="btn-reset" title="Reset to default">Reset to ${field.minDefault}–${field.maxDefault}</button>
+          </div>
+          <p class="ef-desc">${field.desc}</p>
+          <div class="ef-input-row">
+            <input type="number" class="number-input" data-key="${field.minKey}"
+              value="${minVal}" min="${field.min}" max="${field.max}" step="${field.step}">
+            <span class="ef-unit">–</span>
+            <input type="number" class="number-input" data-key="${field.maxKey}"
+              value="${maxVal}" min="${field.min}" max="${field.max}" step="${field.step}">
+            <span class="ef-unit">${field.unit}</span>
+          </div>
+        `;
+        div.querySelectorAll("input").forEach((i) => i.addEventListener("input", markDirty));
+        div.querySelector(".btn-reset").addEventListener("click", () => {
+          const [minInput, maxInput] = div.querySelectorAll("input");
+          minInput.value = field.minDefault;
+          maxInput.value = field.maxDefault;
+          markDirty();
+        });
+      } else {
+        const value = po[field.key] ?? field.default;
+        div.innerHTML = `
+          <div class="ef-header">
+            <label class="ef-label">${field.label}</label>
+            <button class="btn-reset" title="Reset to default">Reset to ${field.default}</button>
+          </div>
+          <p class="ef-desc">${field.desc}</p>
+          <div class="ef-input-row">
+            <input type="number" class="number-input" data-key="${field.key}"
+              value="${value}" min="${field.min}" max="${field.max}" step="${field.step}">
+            <span class="ef-unit">${field.unit}</span>
+          </div>
+        `;
+        div.querySelector("input").addEventListener("input", markDirty);
+        div.querySelector(".btn-reset").addEventListener("click", () => {
+          div.querySelector("input").value = field.default;
+          markDirty();
+        });
+      }
+
+      fields.appendChild(div);
     });
-    fields.appendChild(div);
   });
 }
 

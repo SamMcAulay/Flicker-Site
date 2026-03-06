@@ -583,7 +583,16 @@ body::after {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 520px;
+  max-width: 560px;
+}
+
+.economy-fields .section-title {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.economy-fields .section-title:first-child {
+  margin-top: 0;
 }
 
 .economy-field {
@@ -644,6 +653,14 @@ body::after {
   border-color: var(--accent);
   border-top-color: var(--accent);
 }
+
+/* Remove browser number spinners */
+.number-input::-webkit-outer-spin-button,
+.number-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.number-input { -moz-appearance: textfield; }
 
 .ef-unit {
   font-family: var(--font-mono);
