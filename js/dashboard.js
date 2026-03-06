@@ -468,7 +468,7 @@ function initStarfield() {
       if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
       ctx.beginPath();
       ctx.rect(s.x, s.y, s.r * 1.4, s.r * 1.4);
-      ctx.fillStyle = `rgba(200, 100, 30, ${alpha})`;
+      ctx.fillStyle = `rgba(140, 180, 255, ${alpha})`;
       ctx.fill();
     }
     requestAnimationFrame(draw);
