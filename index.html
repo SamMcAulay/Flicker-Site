@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flicker — Control Panel</title>
-  <link rel="stylesheet" href="css/style.css?v=4">
+  <link rel="stylesheet" href="css/style.css?v=5">
   <style>
     /* login-page specific positioning */
     .login-card { position: relative; }
@@ -49,7 +49,7 @@
     if (hash.startsWith('#token=')) {
       sessionStorage.setItem('flicker_token', hash.slice(7));
       history.replaceState(null, '', window.location.pathname);
-      window.location.href = 'dashboard.html';
+      window.location.href = '/dashboard';
     }
 
     // ── Set login button href ──

@@ -12,7 +12,7 @@ async function apiRequest(path, options = {}) {
   });
   if (res.status === 401 || res.status === 403) {
     sessionStorage.removeItem("flicker_token");
-    window.location.href = "index.html";
+    window.location.href = "/";
     return null;
   }
   if (!res.ok && res.status !== 207) {

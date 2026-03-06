@@ -25,18 +25,30 @@ async function init() {
 
 // ── UI Setup ──────────────────────────────────────────
 
+function activateTab(target) {
+  const tab = document.querySelector(`.nav-tab[data-tab="${target}"]`);
+  if (!tab) return;
+  document.querySelectorAll(".nav-tab").forEach((t) => t.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+  tab.classList.add("active");
+  document.getElementById("tab-" + target).classList.add("active");
+  document.getElementById("tab-heading").textContent = tab.querySelector(".nav-label").textContent;
+}
+
 function setupTabs() {
   document.querySelectorAll(".nav-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
-      const target = tab.dataset.tab;
-      document.querySelectorAll(".nav-tab").forEach((t) => t.classList.remove("active"));
-      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-      tab.classList.add("active");
-      document.getElementById("tab-" + target).classList.add("active");
-      document.getElementById("tab-heading").textContent = tab.querySelector(".nav-label").textContent;
+      activateTab(tab.dataset.tab);
+      history.replaceState(null, "", "#" + tab.dataset.tab);
       closeSidebar();
     });
   });
+
+  // Restore tab from URL hash on load
+  const hash = window.location.hash.slice(1);
+  if (hash && document.querySelector(`.nav-tab[data-tab="${hash}"]`)) {
+    activateTab(hash);
+  }
 }
 
 function openSidebar() {
@@ -61,7 +73,7 @@ function setupSaveButton() {
 function setupLogout() {
   document.getElementById("logout-btn").addEventListener("click", () => {
     clearToken();
-    window.location.href = "index.html";
+    window.location.href = "/";
   });
 }
 

@@ -28,13 +28,13 @@ function decodePayload(token) {
 function requireAuth() {
   const token = getToken();
   if (!token) {
-    window.location.href = "index.html";
+    window.location.href = "/";
     return null;
   }
   const payload = decodePayload(token);
   if (!payload || (payload.exp && payload.exp < Date.now() / 1000)) {
     clearToken();
-    window.location.href = "index.html";
+    window.location.href = "/";
     return null;
   }
   return payload;
