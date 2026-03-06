@@ -374,7 +374,7 @@ function renderResponderTab(settings) {
   builtins.forEach((g) => {
     const isOn = chatToggles[g.key] !== false;
     const card = document.createElement("div");
-    card.className = "rg-card builtin-card" + (isOn ? " is-on" : "");
+    card.className = "rg-card builtin-card";
     card.dataset.key = g.key;
     card.innerHTML = `
       <div class="rg-card-header">
@@ -385,8 +385,9 @@ function renderResponderTab(settings) {
       <div class="rg-pills">${g.triggers.map(t => `<span class="rr-triggers">${escapeHtml(t)}</span>`).join("")}</div>
       <div class="rg-samples">${g.responses.slice(0, 2).map(r => `<span class="rg-sample">"${escapeHtml(r)}"</span>`).join("")}</div>
     `;
+    applyGroupToggle(card, isOn);
     card.addEventListener("click", () => {
-      card.classList.toggle("is-on");
+      applyGroupToggle(card, !card.classList.contains("is-on"));
       markDirty();
     });
     builtinGrid.appendChild(card);
@@ -410,6 +411,14 @@ function renderResponderTab(settings) {
   document.getElementById("gf-submit").addEventListener("click", submitNewGroup);
 }
 
+function applyGroupToggle(card, on) {
+  card.classList.toggle("is-on", on);
+  const knob = card.querySelector(".tc-knob");
+  const sw = card.querySelector(".tc-switch");
+  if (knob) knob.style.transform = on ? "translateX(20px)" : "";
+  if (sw) sw.style.background = on ? "var(--accent)" : "";
+}
+
 function renderCustomGroups(groups) {
   const list = document.getElementById("custom-groups-list");
   if (!list) return;
@@ -422,7 +431,7 @@ function renderCustomGroups(groups) {
     const triggers = JSON.parse(g.triggers);
     const responses = JSON.parse(g.responses);
     const card = document.createElement("div");
-    card.className = "rg-card custom-card" + (g.enabled ? " is-on" : "");
+    card.className = "rg-card custom-card";
     card.dataset.id = g.id;
     card.innerHTML = `
       <div class="rg-card-header">
@@ -433,6 +442,7 @@ function renderCustomGroups(groups) {
       <div class="rg-pills">${triggers.map(t => `<span class="rr-triggers">${escapeHtml(t)}</span>`).join("")}</div>
       <div class="rg-samples">${responses.map(r => `<span class="rg-sample">"${escapeHtml(r)}"</span>`).join("")}</div>
     `;
+    applyGroupToggle(card, !!g.enabled);
     card.querySelector(".rg-toggle").addEventListener("click", (e) => {
       e.stopPropagation();
       toggleCustomGroup(card, g.id, !card.classList.contains("is-on"));
@@ -485,7 +495,7 @@ async function submitNewGroup() {
 async function toggleCustomGroup(card, groupId, enable) {
   try {
     await api.toggleGroup(currentGuildId, groupId, enable);
-    card.classList.toggle("is-on", enable);
+    applyGroupToggle(card, enable);
   } catch {
     showToast("Failed to update group.", "error");
   }
