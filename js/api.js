@@ -15,7 +15,7 @@ async function apiRequest(path, options = {}) {
     window.location.href = "index.html";
     return null;
   }
-  if (!res.ok) {
+  if (!res.ok && res.status !== 207) {
     const text = await res.text().catch(() => res.status);
     throw new Error("API error " + res.status + ": " + text);
   }
@@ -52,5 +52,10 @@ const api = {
   deleteGroup: (guildId, groupId) =>
     apiRequest("/api/response-groups/" + guildId + "/" + groupId, {
       method: "DELETE",
+    }),
+  updateProfile: (guildId, data) =>
+    apiRequest("/api/profile/" + guildId, {
+      method: "POST",
+      body: JSON.stringify(data),
     }),
 };

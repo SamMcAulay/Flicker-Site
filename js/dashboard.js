@@ -114,6 +114,7 @@ async function loadSettings(guildId) {
     renderTogglesTab(currentSettings);
     renderEconomyTab(currentSettings);
     renderResponderTab(currentSettings);
+    renderProfileTab(currentSettings);
   } catch (err) {
     console.error("Failed to load settings:", err);
     showToast("Failed to load settings.", "error");
@@ -539,6 +540,111 @@ async function deleteCustomGroup(groupId) {
     showToast("Group deleted.", "success");
   } catch {
     showToast("Failed to delete group.", "error");
+  }
+}
+
+// ── Profile Tab ──────────────────────────────────────
+
+let pendingAvatarData = null;
+
+function renderProfileTab(settings) {
+  const container = document.getElementById("tab-profile");
+  const profile = settings.bot_profile || {};
+  const prefix = settings.prefix || "!";
+
+  container.innerHTML = `
+    <div class="profile-section">
+      <h3 class="section-title"><span class="section-pip"></span>Bot Profile</h3>
+      <p class="tab-desc">Customise how Flicker appears in this server. Avatar and nickname are per-server.</p>
+
+      <div class="profile-card">
+        <div class="profile-avatar-area">
+          <img id="profile-avatar-preview" class="profile-avatar" src="${escapeHtml(profile.avatar_url)}" alt="Bot avatar">
+          <div class="profile-avatar-actions">
+            <label class="btn-upload" for="profile-avatar-input">Upload Avatar</label>
+            <input type="file" id="profile-avatar-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+            <button id="profile-avatar-reset" class="btn-reset">Reset to Global</button>
+          </div>
+        </div>
+
+        <div class="profile-fields">
+          <div class="profile-field">
+            <label class="ef-label">Nickname</label>
+            <p class="ef-desc">Leave empty to use the bot's global username.</p>
+            <input type="text" id="profile-nickname" class="text-input" value="${escapeHtml(profile.nickname)}" placeholder="Flicker">
+          </div>
+
+          <div class="profile-field">
+            <label class="ef-label">Command Prefix</label>
+            <p class="ef-desc">The character(s) before commands, e.g. <strong>${escapeHtml(prefix)}pet</strong></p>
+            <input type="text" id="profile-prefix" class="text-input profile-prefix-input" value="${escapeHtml(prefix)}" placeholder="!" maxlength="5">
+          </div>
+        </div>
+      </div>
+
+      <button id="profile-save-btn" class="btn-save profile-save">Update Profile</button>
+    </div>
+  `;
+
+  pendingAvatarData = null;
+
+  // Avatar file input
+  document.getElementById("profile-avatar-input").addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) {
+      showToast("Image must be under 8 MB.", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.getElementById("profile-avatar-preview").src = reader.result;
+      pendingAvatarData = reader.result; // data URI
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Reset avatar
+  document.getElementById("profile-avatar-reset").addEventListener("click", () => {
+    pendingAvatarData = ""; // empty string signals "remove guild avatar"
+    document.getElementById("profile-avatar-preview").src = profile.avatar_url;
+    showToast("Avatar will reset to global on save.", "info");
+  });
+
+  // Save profile
+  document.getElementById("profile-save-btn").addEventListener("click", saveProfile);
+}
+
+async function saveProfile() {
+  const btn = document.getElementById("profile-save-btn");
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+
+  const payload = {
+    nickname: document.getElementById("profile-nickname").value.trim(),
+    prefix: document.getElementById("profile-prefix").value.trim() || "!",
+  };
+
+  if (pendingAvatarData !== null) {
+    payload.avatar = pendingAvatarData;
+  }
+
+  try {
+    const res = await api.updateProfile(currentGuildId, payload);
+    if (res.errors && res.errors.length) {
+      showToast("Partial save: " + res.errors.join("; "), "error");
+    } else {
+      showToast("Profile updated!", "success");
+    }
+    pendingAvatarData = null;
+    // Refresh settings to pick up new avatar URL
+    currentSettings = await api.getSettings(currentGuildId);
+    renderProfileTab(currentSettings);
+  } catch (err) {
+    showToast("Failed to update profile.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Update Profile";
   }
 }
 
