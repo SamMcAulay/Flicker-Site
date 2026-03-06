@@ -15,6 +15,9 @@ async function init() {
 
   if (!requireAuth()) return;
 
+  document.getElementById("invite-btn").href = FLICKER_INVITE;
+  document.getElementById("invite-hero-btn").href = FLICKER_INVITE;
+
   setupTabs();
   setupSaveButton();
   setupLogout();
@@ -87,6 +90,9 @@ async function loadGuilds() {
       setStatus("warning", "No servers found");
       document.getElementById("guild-selector").innerHTML =
         '<option value="">No servers available</option>';
+      document.getElementById("invite-panel").hidden = false;
+      document.getElementById("save-btn").hidden = true;
+      document.querySelectorAll(".tab-panel").forEach((p) => (p.hidden = true));
       return;
     }
 

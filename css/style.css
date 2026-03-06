@@ -425,6 +425,90 @@ body::after {
   border-color: var(--accent-bright);
 }
 
+.btn-invite {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  font-family: var(--font-brand);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-invite:hover {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Invite Panel ───────────────────────────────────── */
+.invite-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.invite-panel[hidden] { display: none; }
+
+.invite-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 18px;
+  padding: 52px 48px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  max-width: 440px;
+}
+
+.invite-bolt {
+  font-size: 48px;
+  line-height: 1;
+  filter: drop-shadow(0 0 18px rgba(91, 142, 247, 0.45));
+}
+
+.invite-title {
+  font-family: var(--font-brand);
+  font-size: 28px;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+
+.invite-desc {
+  color: var(--text-2);
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.65;
+}
+
+.btn-invite-hero {
+  display: inline-block;
+  padding: 11px 28px;
+  background: var(--accent);
+  border: 1px solid var(--accent-bright);
+  color: #fff;
+  font-family: var(--font-brand);
+  font-size: 17px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s, border-color 0.1s;
+  margin-top: 4px;
+}
+
+.btn-invite-hero:hover {
+  background: var(--accent-bright);
+}
+
 .main-body {
   flex: 1;
   padding: 28px;

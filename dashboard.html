@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Flicker — Dashboard</title>
-  <link rel="stylesheet" href="css/style.css?v=5">
+  <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
 
@@ -63,10 +63,26 @@
       <header class="main-header">
         <button id="menu-toggle" class="menu-toggle" aria-label="Open menu">☰</button>
         <h1 id="tab-heading">Toggles</h1>
+        <a id="invite-btn" class="btn-invite" target="_blank" rel="noopener">+ Add to Server</a>
         <button id="save-btn" class="btn-save" disabled>Save Changes</button>
       </header>
 
       <div class="main-body">
+
+        <!-- Invite panel (shown when user admins no servers with Flicker) -->
+        <div id="invite-panel" class="invite-panel" hidden>
+          <div class="invite-card">
+            <span class="invite-bolt">⚡</span>
+            <h2 class="invite-title">No Servers Found</h2>
+            <p class="invite-desc">
+              Flicker isn't in any servers you manage yet.<br>
+              Invite it to a server to unlock the control panel.
+            </p>
+            <a id="invite-hero-btn" class="btn-invite-hero" target="_blank" rel="noopener">
+              + Invite Flicker to a Server
+            </a>
+          </div>
+        </div>
 
         <!-- Loading overlay -->
         <div id="loading-overlay">
@@ -104,9 +120,9 @@
 
   <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
-  <script src="js/config.js?v=5"></script>
-  <script src="js/auth.js?v=5"></script>
-  <script src="js/api.js?v=5"></script>
-  <script src="js/dashboard.js?v=5"></script>
+  <script src="js/config.js?v=6"></script>
+  <script src="js/auth.js?v=6"></script>
+  <script src="js/api.js?v=6"></script>
+  <script src="js/dashboard.js?v=6"></script>
 </body>
 </html>
