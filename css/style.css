@@ -1026,6 +1026,14 @@ body::after {
   border: 2px solid var(--border-2);
 }
 
+.profile-avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-3);
+  font-size: 36px;
+}
+
 .profile-avatar-actions {
   display: flex;
   flex-direction: column;

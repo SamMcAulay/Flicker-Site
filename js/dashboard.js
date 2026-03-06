@@ -550,7 +550,9 @@ let pendingAvatarData = null;
 function renderProfileTab(settings) {
   const container = document.getElementById("tab-profile");
   const profile = settings.bot_profile || {};
-  const prefix = settings.prefix || "!";
+  const avatarUrl = profile.avatar_url || "";
+  const nickname  = profile.nickname  || "";
+  const prefix    = settings.prefix   || "!";
 
   container.innerHTML = `
     <div class="profile-section">
@@ -559,7 +561,7 @@ function renderProfileTab(settings) {
 
       <div class="profile-card">
         <div class="profile-avatar-area">
-          <img id="profile-avatar-preview" class="profile-avatar" src="${escapeHtml(profile.avatar_url)}" alt="Bot avatar">
+          ${avatarUrl ? `<img id="profile-avatar-preview" class="profile-avatar" src="${escapeHtml(avatarUrl)}" alt="Bot avatar">` : `<div id="profile-avatar-preview" class="profile-avatar profile-avatar-placeholder">🤖</div>`}
           <div class="profile-avatar-actions">
             <label class="btn-upload" for="profile-avatar-input">Upload Avatar</label>
             <input type="file" id="profile-avatar-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
@@ -571,7 +573,7 @@ function renderProfileTab(settings) {
           <div class="profile-field">
             <label class="ef-label">Nickname</label>
             <p class="ef-desc">Leave empty to use the bot's global username.</p>
-            <input type="text" id="profile-nickname" class="text-input" value="${escapeHtml(profile.nickname)}" placeholder="Flicker">
+            <input type="text" id="profile-nickname" class="text-input" value="${escapeHtml(nickname)}" placeholder="Flicker">
           </div>
 
           <div class="profile-field">
@@ -598,6 +600,15 @@ function renderProfileTab(settings) {
     }
     const reader = new FileReader();
     reader.onload = () => {
+      const preview = document.getElementById("profile-avatar-preview");
+      // Replace a placeholder div with a real img if needed
+      if (preview.tagName !== "IMG") {
+        const img = document.createElement("img");
+        img.id = "profile-avatar-preview";
+        img.className = "profile-avatar";
+        img.alt = "Bot avatar";
+        preview.replaceWith(img);
+      }
       document.getElementById("profile-avatar-preview").src = reader.result;
       pendingAvatarData = reader.result; // data URI
     };
@@ -607,7 +618,8 @@ function renderProfileTab(settings) {
   // Reset avatar
   document.getElementById("profile-avatar-reset").addEventListener("click", () => {
     pendingAvatarData = ""; // empty string signals "remove guild avatar"
-    document.getElementById("profile-avatar-preview").src = profile.avatar_url;
+    const preview = document.getElementById("profile-avatar-preview");
+    if (preview.tagName === "IMG") preview.src = avatarUrl;
     showToast("Avatar will reset to global on save.", "info");
   });
 
