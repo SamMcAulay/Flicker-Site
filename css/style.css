@@ -941,6 +941,16 @@ body::after {
 
 .rg-toggle { cursor: pointer; flex-shrink: 0; }
 
+.rg-card.is-on .tc-switch {
+  background: var(--accent);
+  border-color: var(--accent-bright);
+}
+
+.rg-card.is-on .tc-knob {
+  transform: translateX(20px);
+  background: #fff;
+}
+
 .rg-delete { margin-left: 4px; flex-shrink: 0; }
 
 .rg-pills {
