@@ -152,11 +152,17 @@ async function saveSettings() {
       payout_overrides[input.dataset.key] = parseFloat(input.value);
     });
 
+    const chat_toggles = {};
+    document.querySelectorAll(".builtin-card[data-key]").forEach((card) => {
+      chat_toggles[card.dataset.key] = card.classList.contains("is-on");
+    });
+
     await api.saveSettings(currentGuildId, {
       game_toggles,
       event_toggles,
       command_toggles,
       payout_overrides,
+      chat_toggles,
     });
 
     isDirty = false;
@@ -319,91 +325,182 @@ function renderEconomyTab(settings) {
 
 function renderResponderTab(settings) {
   const container = document.getElementById("tab-responder");
+  const chatToggles = settings.chat_toggles || {};
+  const builtins = settings.builtin_groups || [];
+  const groups = settings.response_groups || [];
+
   container.innerHTML = `
-    <p class="tab-desc">Add custom replies triggered when someone mentions Flicker and a matching word. Triggers are comma-separated.</p>
-    <div class="responder-form">
-      <div class="rf-row">
-        <div class="rf-group">
-          <label class="ef-label">Trigger Words</label>
-          <input type="text" id="trigger-input" class="text-input" placeholder="pizza, food, hungry">
-        </div>
-        <div class="rf-group rf-grow">
-          <label class="ef-label">Response Text</label>
-          <input type="text" id="response-input" class="text-input" placeholder="What should Flicker say?">
-        </div>
-        <button id="add-response-btn" class="btn-add">+ Add</button>
-      </div>
+    <div class="rg-section">
+      <h3 class="section-title"><span class="section-pip"></span>Built-in Groups</h3>
+      <p class="tab-desc">These are Flicker's default response groups. Toggle them on or off per server. Changes are saved with the Save button.</p>
+      <div class="rg-grid" id="builtin-groups"></div>
     </div>
-    <div id="responses-list"></div>
+    <div class="rg-section">
+      <div class="rg-toolbar">
+        <h3 class="section-title" style="margin-bottom:0"><span class="section-pip"></span>Custom Groups</h3>
+        <button class="btn-new-group" id="show-new-group-btn">+ New Group</button>
+      </div>
+      <p class="tab-desc">Create your own response groups with multiple triggers and random replies.</p>
+      <div class="group-form hidden" id="new-group-form">
+        <div class="gf-row">
+          <div class="rf-group rf-grow">
+            <label class="ef-label">Group Name</label>
+            <input type="text" id="gf-name" class="text-input" placeholder="e.g. Food">
+          </div>
+        </div>
+        <div class="gf-row">
+          <div class="rf-group rf-grow">
+            <label class="ef-label">Trigger Words <span class="hint">(comma-separated)</span></label>
+            <input type="text" id="gf-triggers" class="text-input" placeholder="pizza, food, hungry, eat">
+          </div>
+        </div>
+        <div class="gf-row">
+          <div class="rf-group rf-grow">
+            <label class="ef-label">Responses <span class="hint">(one per line — Flicker picks randomly)</span></label>
+            <textarea id="gf-responses" class="text-input gf-textarea" placeholder="Mmm, want some space fuel?&#10;Flicker doesn't eat but appreciates the sentiment!&#10;*stomach rumbles in binary*"></textarea>
+          </div>
+        </div>
+        <div class="gf-actions">
+          <button class="btn-add" id="gf-submit">Create Group</button>
+          <button class="btn-cancel" id="gf-cancel">Cancel</button>
+        </div>
+      </div>
+      <div id="custom-groups-list"></div>
+    </div>
   `;
-  renderResponsesList(settings.custom_responses || []);
-  document.getElementById("add-response-btn").addEventListener("click", addResponse);
+
+  // Render built-in group cards
+  const builtinGrid = document.getElementById("builtin-groups");
+  builtins.forEach((g) => {
+    const isOn = chatToggles[g.key] !== false;
+    const card = document.createElement("div");
+    card.className = "rg-card builtin-card" + (isOn ? " is-on" : "");
+    card.dataset.key = g.key;
+    card.innerHTML = `
+      <div class="rg-card-header">
+        <span class="rg-icon">${g.icon}</span>
+        <span class="rg-name">${escapeHtml(g.name)}</span>
+        <span class="tc-switch"><span class="tc-knob"></span></span>
+      </div>
+      <div class="rg-pills">${g.triggers.map(t => `<span class="rr-triggers">${escapeHtml(t)}</span>`).join("")}</div>
+      <div class="rg-samples">${g.responses.slice(0, 2).map(r => `<span class="rg-sample">"${escapeHtml(r)}"</span>`).join("")}</div>
+    `;
+    card.addEventListener("click", () => {
+      card.classList.toggle("is-on");
+      markDirty();
+    });
+    builtinGrid.appendChild(card);
+  });
+
+  // Render custom groups
+  renderCustomGroups(groups);
+
+  // New group form toggle
+  document.getElementById("show-new-group-btn").addEventListener("click", () => {
+    document.getElementById("new-group-form").classList.remove("hidden");
+    document.getElementById("show-new-group-btn").classList.add("hidden");
+  });
+  document.getElementById("gf-cancel").addEventListener("click", () => {
+    document.getElementById("new-group-form").classList.add("hidden");
+    document.getElementById("show-new-group-btn").classList.remove("hidden");
+    document.getElementById("gf-name").value = "";
+    document.getElementById("gf-triggers").value = "";
+    document.getElementById("gf-responses").value = "";
+  });
+  document.getElementById("gf-submit").addEventListener("click", submitNewGroup);
 }
 
-function renderResponsesList(responses) {
-  const list = document.getElementById("responses-list");
-  if (!responses.length) {
-    list.innerHTML = '<p class="empty-state">No custom responses yet. Add one above.</p>';
+function renderCustomGroups(groups) {
+  const list = document.getElementById("custom-groups-list");
+  if (!list) return;
+  if (!groups.length) {
+    list.innerHTML = '<p class="empty-state">No custom groups yet. Create one above.</p>';
     return;
   }
-  list.innerHTML = responses
-    .map(
-      (r) => `
-    <div class="response-row" data-id="${r.id}">
-      <span class="rr-triggers">${escapeHtml(r.trigger_words)}</span>
-      <span class="rr-arrow">→</span>
-      <span class="rr-text">${escapeHtml(r.response_text)}</span>
-      <button class="btn-delete" data-id="${r.id}" title="Delete">✕</button>
-    </div>`
-    )
-    .join("");
-
-  list.querySelectorAll(".btn-delete").forEach((btn) => {
-    btn.addEventListener("click", () => deleteResponse(parseInt(btn.dataset.id)));
+  list.innerHTML = "";
+  groups.forEach((g) => {
+    const triggers = JSON.parse(g.triggers);
+    const responses = JSON.parse(g.responses);
+    const card = document.createElement("div");
+    card.className = "rg-card custom-card" + (g.enabled ? " is-on" : "");
+    card.dataset.id = g.id;
+    card.innerHTML = `
+      <div class="rg-card-header">
+        <span class="rg-name">${escapeHtml(g.name)}</span>
+        <span class="tc-switch rg-toggle"><span class="tc-knob"></span></span>
+        <button class="btn-delete rg-delete" title="Delete group">✕</button>
+      </div>
+      <div class="rg-pills">${triggers.map(t => `<span class="rr-triggers">${escapeHtml(t)}</span>`).join("")}</div>
+      <div class="rg-samples">${responses.map(r => `<span class="rg-sample">"${escapeHtml(r)}"</span>`).join("")}</div>
+    `;
+    card.querySelector(".rg-toggle").addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleCustomGroup(card, g.id, !card.classList.contains("is-on"));
+    });
+    card.querySelector(".rg-delete").addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteCustomGroup(g.id);
+    });
+    list.appendChild(card);
   });
 }
 
-async function addResponse() {
-  const triggerInput = document.getElementById("trigger-input");
-  const responseInput = document.getElementById("response-input");
-  const triggers = triggerInput.value.trim();
-  const response = responseInput.value.trim();
+async function submitNewGroup() {
+  const name = document.getElementById("gf-name").value.trim();
+  const triggersRaw = document.getElementById("gf-triggers").value.trim();
+  const responsesRaw = document.getElementById("gf-responses").value.trim();
 
-  if (!triggers || !response) {
-    showToast("Fill in both trigger words and response text.", "error");
+  if (!name || !triggersRaw || !responsesRaw) {
+    showToast("Fill in all fields.", "error");
     return;
   }
 
-  const btn = document.getElementById("add-response-btn");
+  const triggers = triggersRaw.split(",").map(t => t.trim().toLowerCase()).filter(Boolean);
+  const responses = responsesRaw.split("\n").map(r => r.trim()).filter(Boolean);
+
+  if (!triggers.length || !responses.length) {
+    showToast("Need at least one trigger and one response.", "error");
+    return;
+  }
+
+  const btn = document.getElementById("gf-submit");
   btn.disabled = true;
-  btn.textContent = "Adding…";
+  btn.textContent = "Creating…";
 
   try {
-    await api.addResponse(currentGuildId, triggers, response);
-    triggerInput.value = "";
-    responseInput.value = "";
+    await api.addGroup(currentGuildId, name, triggers, responses);
     const settings = await api.getSettings(currentGuildId);
     currentSettings = settings;
-    renderResponsesList(settings.custom_responses || []);
-    showToast("Response added!", "success");
+    document.getElementById("gf-cancel").click();
+    renderCustomGroups(settings.response_groups || []);
+    showToast("Group created!", "success");
   } catch (err) {
-    showToast("Failed to add response.", "error");
+    showToast("Failed to create group.", "error");
   } finally {
     btn.disabled = false;
-    btn.textContent = "+ Add";
+    btn.textContent = "Create Group";
   }
 }
 
-async function deleteResponse(responseId) {
-  if (!confirm("Delete this response?")) return;
+async function toggleCustomGroup(card, groupId, enable) {
   try {
-    await api.deleteResponse(currentGuildId, responseId);
+    await api.toggleGroup(currentGuildId, groupId, enable);
+    card.classList.toggle("is-on", enable);
+  } catch {
+    showToast("Failed to update group.", "error");
+  }
+}
+
+async function deleteCustomGroup(groupId) {
+  if (!confirm("Delete this response group?")) return;
+  try {
+    await api.deleteGroup(currentGuildId, groupId);
     const settings = await api.getSettings(currentGuildId);
     currentSettings = settings;
-    renderResponsesList(settings.custom_responses || []);
-    showToast("Response deleted.", "success");
+    renderCustomGroups(settings.response_groups || []);
+    showToast("Group deleted.", "success");
   } catch {
-    showToast("Failed to delete response.", "error");
+    showToast("Failed to delete group.", "error");
   }
 }
 

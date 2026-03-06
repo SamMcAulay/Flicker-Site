@@ -39,4 +39,18 @@ const api = {
     apiRequest("/api/custom-responses/" + guildId + "/" + responseId, {
       method: "DELETE",
     }),
+  addGroup: (guildId, name, triggers, responses) =>
+    apiRequest("/api/response-groups/" + guildId, {
+      method: "POST",
+      body: JSON.stringify({ name, triggers, responses }),
+    }),
+  toggleGroup: (guildId, groupId, enabled) =>
+    apiRequest("/api/response-groups/" + guildId + "/" + groupId, {
+      method: "PATCH",
+      body: JSON.stringify({ enabled }),
+    }),
+  deleteGroup: (guildId, groupId) =>
+    apiRequest("/api/response-groups/" + guildId + "/" + groupId, {
+      method: "DELETE",
+    }),
 };

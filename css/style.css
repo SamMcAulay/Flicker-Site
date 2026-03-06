@@ -815,6 +815,157 @@ body::after {
 }
 
 /* ══════════════════════════════════════════════════════
+   RESPONSE GROUPS TAB
+   ══════════════════════════════════════════════════════ */
+
+.rg-section {
+  margin-bottom: 40px;
+}
+
+.rg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  gap: 12px;
+}
+
+.btn-new-group {
+  padding: 7px 16px;
+  background: var(--accent);
+  border: 1px solid var(--accent-bright);
+  color: #fff;
+  font-family: var(--font-brand);
+  font-size: 15px;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-new-group:hover { background: var(--accent-bright); }
+
+.btn-cancel {
+  padding: 9px 16px;
+  background: transparent;
+  border: 1px solid var(--border-2);
+  color: var(--text-2);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.1s, color 0.1s;
+}
+
+.btn-cancel:hover {
+  background: var(--surface-3);
+  color: var(--text);
+}
+
+.group-form {
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-top: 2px solid var(--accent);
+  padding: 18px;
+  margin-bottom: 20px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.group-form.hidden { display: none; }
+
+.gf-row { display: flex; gap: 10px; }
+
+.gf-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  width: 100%;
+}
+
+.gf-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.rg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+}
+
+/* ── Group Card ─────────────────────────────────────── */
+.rg-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-top: 2px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-top-color 0.1s, box-shadow 0.1s;
+}
+
+.rg-card.is-on {
+  border-top-color: var(--accent);
+  box-shadow: 0 0 10px rgba(91, 142, 247, 0.08);
+}
+
+.builtin-card { cursor: pointer; }
+.builtin-card:hover { border-color: var(--border-2); }
+
+.custom-card {
+  margin-bottom: 8px;
+}
+
+.rg-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rg-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
+
+.rg-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  flex: 1;
+}
+
+.rg-toggle { cursor: pointer; flex-shrink: 0; }
+
+.rg-delete { margin-left: 4px; flex-shrink: 0; }
+
+.rg-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.rg-samples {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rg-sample {
+  font-size: 11px;
+  color: var(--text-2);
+  font-style: italic;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ══════════════════════════════════════════════════════
    TOAST NOTIFICATIONS
    ══════════════════════════════════════════════════════ */
 
