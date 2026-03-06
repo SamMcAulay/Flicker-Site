@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flicker — Command Guide</title>
+  <link rel="stylesheet" href="css/style.css?v=6">
+  <style>
+    /* ── Guide Layout ─────────────────────────────────── */
+    .guide-layout {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* ── Guide Sidebar (TOC) ──────────────────────────── */
+    .guide-sidebar {
+      width: 240px;
+      flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .guide-sidebar-top {
+      padding: 22px 18px 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .guide-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      text-decoration: none;
+    }
+
+    .guide-brand-bolt { font-size: 18px; }
+
+    .guide-brand-name {
+      font-family: var(--font-brand);
+      font-size: 26px;
+      letter-spacing: 0.06em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .guide-sidebar-label {
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-top: 2px;
+    }
+
+    .guide-toc {
+      padding: 14px 10px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .toc-section-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 10px 8px 4px;
+    }
+
+    .toc-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px 8px 14px;
+      text-decoration: none;
+      border: none;
+      border-left: 2px solid transparent;
+      background: transparent;
+      color: var(--text-2);
+      font-family: var(--font-ui);
+      font-size: 12.5px;
+      font-weight: 500;
+      width: 100%;
+      text-align: left;
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    .toc-link:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .toc-link.active {
+      background: var(--surface-2);
+      border-left-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .toc-icon { font-size: 14px; flex-shrink: 0; }
+
+    .guide-sidebar-bottom {
+      padding: 14px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: transparent;
+      border: 1px solid var(--border-2);
+      color: var(--text-2);
+      font-family: var(--font-ui);
+      font-size: 12px;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s, border-color 0.1s;
+      border-radius: var(--radius-sm);
+    }
+
+    .btn-back:hover {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ── Guide Main ───────────────────────────────────── */
+    .guide-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      min-width: 0;
+    }
+
+    .guide-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      gap: 12px;
+    }
+
+    .guide-header-title {
+      font-family: var(--font-brand);
+      font-size: 20px;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .guide-header-meta {
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: var(--font-mono);
+    }
+
+    .guide-menu-toggle {
+      display: none;
+      background: transparent;
+      border: 1px solid var(--border-2);
+      color: var(--text-2);
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: var(--radius-sm);
+      transition: background 0.1s, color 0.1s;
+    }
+
+    .guide-menu-toggle:hover { background: var(--surface-2); color: var(--text); }
+
+    .guide-body {
+      flex: 1;
+      padding: 36px 40px;
+      overflow-y: auto;
+      max-width: 920px;
+    }
+
+    /* ── Sections ─────────────────────────────────────── */
+    .guide-section {
+      margin-bottom: 56px;
+      scroll-margin-top: 80px;
+    }
+
+    .guide-section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .guide-section-icon { font-size: 24px; line-height: 1; }
+
+    .guide-section-title {
+      font-family: var(--font-brand);
+      font-size: 26px;
+      letter-spacing: 0.1em;
+      color: var(--text);
+    }
+
+    .guide-section-desc {
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.7;
+      margin-bottom: 24px;
+      max-width: 680px;
+    }
+
+    /* ── Intro / Hero ─────────────────────────────────── */
+    .guide-hero {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      margin-bottom: 48px;
+    }
+
+    .guide-hero-title {
+      font-family: var(--font-brand);
+      font-size: 36px;
+      letter-spacing: 0.08em;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    .guide-hero-sub {
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      max-width: 600px;
+      margin-bottom: 20px;
+    }
+
+    .guide-chips-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .guide-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-line);
+      color: var(--accent-bright);
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      border-radius: var(--radius-sm);
+    }
+
+    /* ── Command Card ─────────────────────────────────── */
+    .cmd-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      overflow: hidden;
+      transition: border-left-color 0.15s;
+    }
+
+    .cmd-card:hover { border-left-color: var(--accent); }
+
+    .cmd-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 16px 18px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .cmd-icon { font-size: 20px; line-height: 1; flex-shrink: 0; margin-top: 2px; }
+
+    .cmd-info { flex: 1; min-width: 0; }
+
+    .cmd-name-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .cmd-name {
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .cmd-aliases {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-3);
+    }
+
+    .cmd-badge {
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    .badge-admin {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.3);
+      color: var(--warn);
+    }
+
+    .badge-auto {
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      color: var(--success);
+    }
+
+    .badge-hourly {
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-line);
+      color: var(--accent-bright);
+    }
+
+    .cmd-desc {
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.55;
+    }
+
+    .cmd-chevron {
+      font-size: 11px;
+      color: var(--text-3);
+      flex-shrink: 0;
+      margin-top: 4px;
+      transition: transform 0.15s;
+    }
+
+    .cmd-card.open .cmd-chevron { transform: rotate(90deg); }
+
+    .cmd-body {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    .cmd-card.open .cmd-body { display: block; }
+
+    .cmd-body-inner {
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* ── Usage block ──────────────────────────────────── */
+    .cmd-usage-block {
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+    }
+
+    .cmd-usage-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    .cmd-usage-line {
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      color: var(--accent-bright);
+      margin-bottom: 3px;
+    }
+
+    .cmd-usage-line:last-child { margin-bottom: 0; }
+
+    .cmd-usage-param { color: var(--text-2); }
+
+    /* ── Info rows ────────────────────────────────────── */
+    .cmd-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+
+    .cmd-info-cell {
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 13px;
+    }
+
+    .cic-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      margin-bottom: 4px;
+    }
+
+    .cic-value {
+      font-size: 12.5px;
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    /* ── Examples ─────────────────────────────────────── */
+    .cmd-examples {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .cmd-example {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 12px;
+      background: var(--surface-3);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+    }
+
+    .ex-cmd {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: var(--success);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .ex-arrow { color: var(--text-3); flex-shrink: 0; font-size: 11px; padding-top: 1px; }
+
+    .ex-result {
+      font-size: 12px;
+      color: var(--text-2);
+      font-weight: 300;
+      line-height: 1.45;
+    }
+
+    /* ── Notes ────────────────────────────────────────── */
+    .cmd-notes {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .cmd-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 12.5px;
+      color: var(--text-2);
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    .note-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--accent);
+      border-radius: 1px;
+      flex-shrink: 0;
+      margin-top: 6px;
+    }
+
+    .note-warn { color: var(--warn); }
+    .note-tip  { color: var(--success); }
+
+    /* ── Event Cards ──────────────────────────────────── */
+    .event-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .event-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-top: 2px solid var(--border-2);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .event-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .event-icon { font-size: 20px; line-height: 1; }
+
+    .event-name {
+      font-family: var(--font-brand);
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      color: var(--text);
+    }
+
+    .event-reward {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent-bright);
+      margin-left: auto;
+      background: var(--accent-dim);
+      border: 1px solid var(--accent-line);
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    .event-desc {
+      color: var(--text-2);
+      font-size: 12.5px;
+      font-weight: 300;
+      line-height: 1.55;
+    }
+
+    .event-meta {
+      font-size: 11px;
+      color: var(--text-3);
+      font-family: var(--font-mono);
+    }
+
+    /* ── Info box ─────────────────────────────────────── */
+    .info-box {
+      padding: 14px 18px;
+      border-radius: var(--radius-sm);
+      border-left: 3px solid;
+      font-size: 13px;
+      font-weight: 300;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .info-box.blue {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--text);
+    }
+
+    .info-box.green {
+      background: var(--success-dim);
+      border-color: var(--success);
+      color: var(--text);
+    }
+
+    .info-box.yellow {
+      background: rgba(251, 191, 36, 0.08);
+      border-color: var(--warn);
+      color: var(--text);
+    }
+
+    .info-box strong { color: inherit; font-weight: 700; }
+
+    /* ── Currency flow diagram ────────────────────────── */
+    .currency-flow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .currency-block {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      text-align: center;
+      min-width: 130px;
+    }
+
+    .currency-block-icon { font-size: 24px; margin-bottom: 4px; }
+    .currency-block-name { font-family: var(--font-brand); font-size: 16px; letter-spacing: 0.08em; color: var(--text); }
+    .currency-block-desc { font-size: 11px; color: var(--text-3); margin-top: 3px; line-height: 1.4; }
+
+    .currency-arrow {
+      font-size: 20px;
+      color: var(--accent);
+      font-family: var(--font-mono);
+    }
+
+    .currency-rate {
+      font-size: 10px;
+      color: var(--text-3);
+      text-align: center;
+      margin-top: 2px;
+      font-family: var(--font-mono);
+    }
+
+    /* ── Sub-label ────────────────────────────────────── */
+    .sub-heading {
+      font-family: var(--font-brand);
+      font-size: 16px;
+      letter-spacing: 0.1em;
+      color: var(--text-2);
+      margin: 20px 0 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sub-heading::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Slots payout table ───────────────────────────── */
+    .payout-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .payout-table th {
+      text-align: left;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .payout-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-2);
+      font-weight: 300;
+      font-family: var(--font-mono);
+    }
+
+    .payout-table tr:last-child td { border-bottom: none; }
+    .payout-table tr:hover td { background: var(--surface-3); }
+
+    .payout-win   { color: var(--success); }
+    .payout-jackpot { color: var(--warn); font-weight: 700; }
+
+    /* ── Mobile ───────────────────────────────────────── */
+    .guide-sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 40;
+    }
+
+    .guide-sidebar-backdrop.open { display: block; }
+
+    @media (max-width: 768px) {
+      .guide-menu-toggle { display: flex; }
+
+      .guide-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease;
+        width: 260px;
+      }
+
+      .guide-sidebar.open { transform: translateX(0); }
+
+      .guide-body {
+        padding: 24px 18px;
+      }
+
+      .guide-hero { padding: 22px 20px; }
+
+      .event-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cmd-info-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .cmd-info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="starfield"></canvas>
+
+  <div class="guide-layout">
+
+    <!-- ── TOC Sidebar ──────────────────────────────── -->
+    <aside class="guide-sidebar" id="guide-sidebar">
+      <div class="guide-sidebar-top">
+        <a href="index.html" class="guide-brand">
+          <span class="guide-brand-bolt">&#9889;</span>
+          <span class="guide-brand-name">FLICKER</span>
+        </a>
+        <p class="guide-sidebar-label">Command Guide</p>
+      </div>
+
+      <nav class="guide-toc">
+        <p class="toc-section-label">Contents</p>
+
+        <a href="#getting-started" class="toc-link">
+          <span class="toc-icon">&#128640;</span> Getting Started
+        </a>
+        <a href="#economy" class="toc-link">
+          <span class="toc-icon">&#10024;</span> Economy
+        </a>
+        <a href="#events" class="toc-link">
+          <span class="toc-icon">&#127381;</span> Chat Events
+        </a>
+        <a href="#gambling" class="toc-link">
+          <span class="toc-icon">&#127922;</span> Gambling
+        </a>
+        <a href="#shop" class="toc-link">
+          <span class="toc-icon">&#128722;</span> Shop
+        </a>
+        <a href="#voice" class="toc-link">
+          <span class="toc-icon">&#127897;</span> Voice Channels
+        </a>
+        <a href="#admin" class="toc-link">
+          <span class="toc-icon">&#128737;</span> Admin Commands
+        </a>
+      </nav>
+
+      <div class="guide-sidebar-bottom">
+        <a href="index.html" class="btn-back">&#8592; Back to Login</a>
+        <a href="dashboard.html" class="btn-back">&#9889; Dashboard</a>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ──────────────────────────────── -->
+    <main class="guide-main">
+      <header class="guide-header">
+        <button class="guide-menu-toggle" id="guide-menu-toggle" aria-label="Open menu">&#9776;</button>
+        <span class="guide-header-title">COMMAND GUIDE</span>
+        <span class="guide-header-meta">prefix: !</span>
+      </header>
+
+      <div class="guide-body">
+
+        <!-- ── Hero ────────────────────────────────────── -->
+        <div class="guide-hero">
+          <div class="guide-hero-title">&#9889; Welcome to Flicker</div>
+          <p class="guide-hero-sub">
+            Flicker is a Discord bot with a full economy, gambling games, random chat events, a shop, and private voice channels.
+            All commands start with <strong>!</strong> — just type them in any channel where Flicker is active.
+          </p>
+          <div class="guide-chips-row">
+            <span class="guide-chip">&#10024; Stardust — event currency</span>
+            <span class="guide-chip">&#127922; Chips — gambling currency</span>
+            <span class="guide-chip">&#128640; 15 s cooldown on gambling</span>
+            <span class="guide-chip">&#9203; Events fire automatically</span>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════
+             GETTING STARTED
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="getting-started">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#128640;</span>
+            <span class="guide-section-title">GETTING STARTED</span>
+          </div>
+          <p class="guide-section-desc">
+            Everything you need to know before jumping in — how the currencies work, how events fire, and a few rules of thumb.
+          </p>
+
+          <div class="info-box blue">
+            <strong>Commands use the <code>!</code> prefix.</strong> Type <code>!balance</code>, <code>!coinflip 100 heads</code>, etc. Most commands also have short aliases listed in each section below.
+          </div>
+
+          <div class="sub-heading">The Two Currencies</div>
+
+          <div class="currency-flow">
+            <div>
+              <div class="currency-block">
+                <div class="currency-block-icon">&#10024;</div>
+                <div class="currency-block-name">Stardust</div>
+                <div class="currency-block-desc">Earned from chat events &amp; petting Flicker.<br>Used in the shop &amp; sent to friends.</div>
+              </div>
+            </div>
+            <div>
+              <div class="currency-arrow">&#8594;</div>
+              <div class="currency-rate">1 SD = 50 Chips<br>one-way only</div>
+            </div>
+            <div>
+              <div class="currency-block">
+                <div class="currency-block-icon">&#127922;</div>
+                <div class="currency-block-name">Chips</div>
+                <div class="currency-block-desc">Bought with Stardust.<br>Used only for gambling — cannot be converted back.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box yellow">
+            <strong>Chips cannot be converted back into Stardust.</strong> Only buy chips you're comfortable gambling with — losses are permanent.
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             ECONOMY
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="economy">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#10024;</span>
+            <span class="guide-section-title">ECONOMY</span>
+          </div>
+          <p class="guide-section-desc">
+            Check your wallet, convert currency, send Stardust to others, or see who's richest on the server.
+          </p>
+
+          <!-- !balance -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128176;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!balance</span>
+                  <span class="cmd-aliases">also: !bal &nbsp; !b &nbsp; !wallet</span>
+                </div>
+                <div class="cmd-desc">Shows your current Stardust and Chips balance in a clean wallet embed.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!balance</div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!b</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Shows your wallet: Stardust + Chips balances.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>No arguments needed — it always shows your own wallet.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You start at 0 in both currencies. Earn Stardust by participating in events or using <code>!pet</code>.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !buychips -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127922;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!buychips</span>
+                  <span class="cmd-aliases">also: !bc</span>
+                </div>
+                <div class="cmd-desc">Convert Stardust into Chips for gambling. Rate is fixed at 1 Stardust = 50 Chips.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!buychips <span class="cmd-usage-param">&lt;amount&gt;</span></div>
+                  <div class="cmd-usage-line">!buychips <span class="cmd-usage-param">all</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Rate</div>
+                    <div class="cic-value">1 Stardust = 50 Chips</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">One-way?</div>
+                    <div class="cic-value">Yes — Chips cannot become Stardust</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!bc 100</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Spends 100 Stardust, gives you 5,000 Chips.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!buychips all</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Converts your entire Stardust balance to Chips.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>You must have enough Stardust — you cannot go negative.</div>
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>This is permanent. Chips lost gambling are gone for good.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !pay -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128184;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!pay</span>
+                  <span class="cmd-aliases">also: !transfer &nbsp; !give</span>
+                </div>
+                <div class="cmd-desc">Send Stardust to another user. The recipient must click Accept before the transfer goes through.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!pay <span class="cmd-usage-param">@user &lt;amount&gt;</span></div>
+                  <div class="cmd-usage-line">!pay <span class="cmd-usage-param">@user all</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Confirmation</div>
+                    <div class="cic-value">Recipient must click Accept</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Timeout</div>
+                    <div class="cic-value">60 seconds — auto-refunded if ignored</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!pay @Sam 500</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Sends Sam a payment request for 500 Stardust. Sam can Accept or Deny.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!give @Sam all</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Sends your entire Stardust balance to Sam.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Stardust is deducted immediately when you run the command and refunded if the request expires or is denied.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You cannot pay yourself, and you cannot pay bots.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>Only Stardust can be sent — Chips are not transferable.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !top -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127942;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!top</span>
+                  <span class="cmd-aliases">also: !leaderboard &nbsp; !lb</span>
+                </div>
+                <div class="cmd-desc">Displays the top 10 richest users for both Stardust and Chips side by side.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!top</div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Only works in a server — not in DMs.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Shows all-time balances, not just activity in this server.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Users who have left the server show as "User [ID]" instead of their name.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !pet -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#129302;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!pet</span>
+                  <span class="cmd-badge badge-hourly">Hourly</span>
+                </div>
+                <div class="cmd-desc">Give Flicker a pet! Earns 1–10 Stardust plus a streak bonus. Use it every hour to build your streak and earn more.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!pet</div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">1 hour per use</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Base reward</div>
+                    <div class="cic-value">1–10 Stardust (random)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Streak bonus</div>
+                    <div class="cic-value">+1 Stardust per streak level (max +30)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Streak window</div>
+                    <div class="cic-value">Must pet within ~1h 15m of last pet</div>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Your streak increases by 1 each time you pet within the window. Miss it and your streak slowly decays.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>Milestone rewards: streak 7 = +25, streak 14 = +50, streak 30 = +100 Stardust bonus on top of your regular reward.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Milestones only fire once — hitting streak 7 again after losing it gives the bonus again.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             CHAT EVENTS
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="events">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#127381;</span>
+            <span class="guide-section-title">CHAT EVENTS</span>
+          </div>
+          <p class="guide-section-desc">
+            Events pop up on their own while people are chatting in tracked channels. They are the only way to earn Stardust (aside from <code>!pet</code>). There is a 3-minute cooldown between events, so they won't spam the channel.
+          </p>
+
+          <div class="info-box green">
+            <strong>Events are automatic.</strong> You don't trigger them manually — just chat normally and Flicker may drop one in. Admins can control which channels events fire in using <code>!trackC</code>.
+          </div>
+
+          <div class="event-grid">
+
+            <div class="event-card">
+              <div class="event-card-header">
+                <span class="event-icon">&#10024;</span>
+                <span class="event-name">Stardust Drop</span>
+                <span class="event-reward">1–12 SD</span>
+              </div>
+              <p class="event-desc">A pouch of Stardust appears. Type <strong>catch</strong> to grab it. Up to 5 people can catch — first place gets the most, last gets the least. You have 15 seconds.</p>
+              <p class="event-meta">Type: catch &bull; Time: 15s &bull; Up to 5 winners</p>
+            </div>
+
+            <div class="event-card">
+              <div class="event-card-header">
+                <span class="event-icon">&#127348;</span>
+                <span class="event-name">Trivia</span>
+                <span class="event-reward">50–100 SD</span>
+              </div>
+              <p class="event-desc">A science trivia question appears with four options (A, B, C, D). First person to type the correct letter — or spell out the full answer — wins. Highest reward in the game.</p>
+              <p class="event-meta">Type: A / B / C / D &bull; Time: 30s &bull; 1 winner</p>
+            </div>
+
+            <div class="event-card">
+              <div class="event-card-header">
+                <span class="event-icon">&#129299;</span>
+                <span class="event-name">Math Puzzle</span>
+                <span class="event-reward">20–40 SD</span>
+              </div>
+              <p class="event-desc">Flicker posts a short maths problem (e.g. <em>4 × 12 + 7</em>). First to type the correct number wins. No symbols needed — just the answer.</p>
+              <p class="event-meta">Type: the number &bull; Time: 12s &bull; 1 winner</p>
+            </div>
+
+            <div class="event-card">
+              <div class="event-card-header">
+                <span class="event-icon">&#128171;</span>
+                <span class="event-name">Fast Type</span>
+                <span class="event-reward">10–20 SD</span>
+              </div>
+              <p class="event-desc">A random code appears (e.g. <em>XKR-4PW</em>). Type it exactly as shown — no copy-paste, zero-width characters block that. First one wins.</p>
+              <p class="event-meta">Type: the code exactly &bull; Time: 10s &bull; 1 winner</p>
+            </div>
+
+            <div class="event-card">
+              <div class="event-card-header">
+                <span class="event-icon">&#128290;</span>
+                <span class="event-name">Word Scramble</span>
+                <span class="event-reward">15–30 SD</span>
+              </div>
+              <p class="event-desc">A scrambled space-themed word appears (e.g. <em>LUBNAE</em>). Unscramble it and type the correct word first to win.</p>
+              <p class="event-meta">Type: the word &bull; Time: 20s &bull; 1 winner</p>
+            </div>
+
+          </div>
+
+          <div class="info-box blue">
+            <strong>Edge cases to know:</strong> In a Stardust Drop, only the first 5 people who type "catch" get a reward. In Trivia, only the <em>first</em> response is checked — even if it's wrong. In Fast Type, copy-paste on mobile is intentionally blocked, so you'll need to type it manually.
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             GAMBLING
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="gambling">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#127922;</span>
+            <span class="guide-section-title">GAMBLING</span>
+          </div>
+          <p class="guide-section-desc">
+            All gambling uses <strong>Chips</strong>, not Stardust. Every game has a 15-second cooldown per user. You can type <code>all</code> instead of an amount to bet everything you have.
+          </p>
+
+          <div class="info-box yellow">
+            <strong>House edge is real.</strong> All games are designed so the house wins slightly more than you over time. Play for fun, not as a money-making strategy.
+          </div>
+
+          <!-- !coinflip -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#129689;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!coinflip</span>
+                  <span class="cmd-aliases">also: !cf</span>
+                </div>
+                <div class="cmd-desc">Flip a coin. Pick heads or tails — win 2× your bet if you're right.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!coinflip <span class="cmd-usage-param">&lt;chips&gt; [heads|tails]</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Win payout</div>
+                    <div class="cic-value">2× your bet</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">15 seconds</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Default side</div>
+                    <div class="cic-value">Heads (if not specified)</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!cf 500 h</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Bets 500 Chips on heads. Win = 1,000 Chips returned.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!coinflip all tails</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Bets all your Chips on tails.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Accepted inputs: <code>h</code>, <code>head</code>, <code>heads</code>, <code>t</code>, <code>tail</code>, <code>tails</code>.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>The coin animation takes ~2.5 seconds before the result is revealed.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !slots -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127920;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!slots</span>
+                  <span class="cmd-aliases">also: !s</span>
+                </div>
+                <div class="cmd-desc">Spin the Cosmic Chip Slots. Match all three reels to win. Bigger combos pay out more.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!slots <span class="cmd-usage-param">&lt;chips&gt;</span></div>
+                </div>
+                <div class="sub-heading" style="margin-top:4px;">Payout Table</div>
+                <table class="payout-table">
+                  <thead>
+                    <tr>
+                      <th>Combination</th>
+                      <th>Multiplier</th>
+                      <th>Chance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="payout-jackpot">&#128142;&#128142;&#128142; Diamond</td>
+                      <td class="payout-jackpot">10× (Jackpot)</td>
+                      <td>2%</td>
+                    </tr>
+                    <tr>
+                      <td class="payout-win">&#11088;&#11088;&#11088; Star</td>
+                      <td class="payout-win">5×</td>
+                      <td>4%</td>
+                    </tr>
+                    <tr>
+                      <td class="payout-win">&#127819;&#127819;&#127819; / &#127817;&#127817;&#127817; Fruit</td>
+                      <td class="payout-win">3×</td>
+                      <td>8%</td>
+                    </tr>
+                    <tr>
+                      <td class="payout-win">&#127826;&#127826;&#127826; Cherry</td>
+                      <td class="payout-win">2×</td>
+                      <td>8%</td>
+                    </tr>
+                    <tr>
+                      <td>No match</td>
+                      <td>0 (Loss)</td>
+                      <td>78%</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>The reels animate one at a time — the result is already decided when the command is sent.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Default multipliers can be customised by admins in the Dashboard.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !blackjack -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127183;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!blackjack</span>
+                  <span class="cmd-aliases">also: !bj</span>
+                </div>
+                <div class="cmd-desc">Play blackjack against Flicker's dealer. Get closer to 21 than the dealer without going over. Includes Hit, Stand, and Double Down.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!blackjack <span class="cmd-usage-param">&lt;chips&gt;</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Win payout</div>
+                    <div class="cic-value">2× your bet</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Natural 21</div>
+                    <div class="cic-value">2.5× your bet (instant win)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Push (tie)</div>
+                    <div class="cic-value">Bet returned</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Button timeout</div>
+                    <div class="cic-value">30 seconds — bet refunded if idle</div>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span><strong>Hit</strong> — Draw another card.</div>
+                  <div class="cmd-note"><span class="note-dot"></span><strong>Stand</strong> — Keep your hand; dealer plays out.</div>
+                  <div class="cmd-note"><span class="note-dot"></span><strong>Double Down</strong> — Double your bet, draw exactly one more card, then stand automatically. You need enough Chips to cover the extra bet.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Aces count as 11 but flip to 1 automatically if you would bust.</div>
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>If you don't click a button within 30 seconds the game times out and your original bet is refunded.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Only you can click the buttons — other users will be told "Not your game!"</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !hilo -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128200;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!hilo</span>
+                  <span class="cmd-aliases">also: !hl</span>
+                </div>
+                <div class="cmd-desc">Higher or Lower — guess whether the next card is higher or lower. Every correct guess adds +0.2× to your multiplier. Cash out anytime or risk losing everything.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!hilo <span class="cmd-usage-param">&lt;chips&gt;</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Multiplier per guess</div>
+                    <div class="cic-value">+0.2× per correct answer</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Starting multiplier</div>
+                    <div class="cic-value">1.2× after first correct guess</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Tie card</div>
+                    <div class="cic-value">Neither win nor loss — keep going</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Button timeout</div>
+                    <div class="cic-value">30s — auto cashes out if streak &gt; 0</div>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Click <strong>Cash Out</strong> at any point after your first correct guess to collect your winnings.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>A wrong guess ends the game and you lose your entire bet.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>If the game times out with a streak, it automatically cashes you out — you won't lose progress.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Card values: 2–10 face value; J/Q/K = 10; Ace = 11.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !roulette -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127913;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!roulette</span>
+                  <span class="cmd-aliases">also: !rt</span>
+                </div>
+                <div class="cmd-desc">Bet on the Starwheel. Predict red, black, odd, even, or a specific number 0–36. Color/odd/even pays ~1.9×; picking the exact number pays 35×.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!roulette <span class="cmd-usage-param">&lt;chips&gt; red</span></div>
+                  <div class="cmd-usage-line">!roulette <span class="cmd-usage-param">&lt;chips&gt; black</span></div>
+                  <div class="cmd-usage-line">!roulette <span class="cmd-usage-param">&lt;chips&gt; odd</span></div>
+                  <div class="cmd-usage-line">!roulette <span class="cmd-usage-param">&lt;chips&gt; even</span></div>
+                  <div class="cmd-usage-line">!roulette <span class="cmd-usage-param">&lt;chips&gt; 17</span> &nbsp;&nbsp;(any number 0–36)</div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Color / Odd / Even</div>
+                    <div class="cic-value">~1.9× payout</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Straight number</div>
+                    <div class="cic-value">35× payout</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Zero (0)</div>
+                    <div class="cic-value">Neither red, black, odd, nor even</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Wheel range</div>
+                    <div class="cic-value">0–36</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!rt 1000 red</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Bets 1,000 on red. Win = 1,900 Chips returned.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!roulette 200 17</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Bets 200 on number 17. Win = 7,000 Chips returned.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>If 0 comes up, all color and odd/even bets lose — only a straight bet on 0 wins.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>The wheel animation takes a few seconds before the result appears.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !warp -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128640;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!warp</span>
+                  <span class="cmd-aliases">also: !rr &nbsp; !russianroulette &nbsp; !hyperwarp</span>
+                </div>
+                <div class="cmd-desc">Hyperwarp Drive — the highest-risk game. Each warp jump multiplies your pot by 1.5×, but there's roughly a 1-in-2 chance the engines fail and you lose everything. Cash out at any time to keep what you've built.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!warp <span class="cmd-usage-param">&lt;chips&gt;</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Multiplier per jump</div>
+                    <div class="cic-value">1.5× per successful jump</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Survival rate per jump</div>
+                    <div class="cic-value">~53.3%</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Button timeout</div>
+                    <div class="cic-value">30s — auto cashes out if jumps &gt; 0</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">Survive 1 jump:</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">1.5× your bet</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">Survive 2 jumps:</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">2.25× your bet</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">Survive 3 jumps:</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">3.375× your bet</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>You must jump at least once before you can cash out.</div>
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>Engine failure means you lose your entire bet — there is no partial payout on a loss.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>If the game times out with at least 1 jump, your current multiplier is paid out automatically.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !stats -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128202;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!stats</span>
+                </div>
+                <div class="cmd-desc">View your personal gambling history — games played, chips wagered, won, lost, net profit/loss, and your biggest single win for each game.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!stats</div>
+                  <div class="cmd-usage-line">!stats <span class="cmd-usage-param">@user</span> &nbsp;&nbsp;(view someone else's stats)</div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Shows a breakdown per game: Coinflip, Slots, Blackjack, Higher/Lower, Warp, Roulette.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Net column is green if profitable, red if in the hole overall.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Mention another user (<code>!stats @Sam</code>) to view their profile.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SHOP
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="shop">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#128722;</span>
+            <span class="guide-section-title">SHOP</span>
+          </div>
+          <p class="guide-section-desc">
+            Admins can post listings for roles, rewards, or anything else. Each listing shows what it costs and has buttons to buy with Stardust, Chips, or USD.
+          </p>
+
+          <div class="sub-heading">How buying works</div>
+
+          <div class="cmd-info-grid" style="margin-bottom: 16px;">
+            <div class="cmd-info-cell">
+              <div class="cic-label">Role items</div>
+              <div class="cic-value">Buying with Stardust or Chips instantly grants you the Discord role. No waiting.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Manual items</div>
+              <div class="cic-value">A private ticket channel opens in the "Orders" category. Staff deliver it there.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">USD items</div>
+              <div class="cic-value">No automatic deduction. A ticket opens for staff to arrange payment.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Out of stock</div>
+              <div class="cic-value">Button shows "Sold Out" — you cannot purchase until it's restocked.</div>
+            </div>
+          </div>
+
+          <div class="cmd-notes" style="margin-bottom: 20px;">
+            <div class="cmd-note"><span class="note-dot"></span>Your Stardust or Chips are deducted immediately when you click the button.</div>
+            <div class="cmd-note"><span class="note-dot"></span>If a role-based item fails (e.g. the role was deleted), your currency is automatically refunded.</div>
+            <div class="cmd-note"><span class="note-dot"></span>If two people try to buy the last copy of a manual item at the same time, the second person is told "Busy!" and must wait.</div>
+            <div class="cmd-note"><span class="note-dot"></span>Ticket channels are visible only to you, Flicker, and staff. They are deleted once closed and a transcript is saved to staff logs.</div>
+          </div>
+
+          <div class="info-box blue">
+            <strong>Don't see any listings?</strong> The shop is entirely set up by your server's admins. If nothing is posted yet, check back later or ask an admin.
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             VOICE CHANNELS
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="voice">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#127897;</span>
+            <span class="guide-section-title">VOICE CHANNELS</span>
+          </div>
+          <p class="guide-section-desc">
+            Flicker can auto-create a private voice channel just for you whenever you join a special "generator" channel. Your channel comes with a control panel so you can customise it on the fly.
+          </p>
+
+          <div class="info-box blue">
+            <strong>How it works:</strong> An admin sets up a generator voice channel using <code>!VCsetup</code>. When you join that channel, Flicker instantly creates a private VC named after you and moves you into it.
+          </div>
+
+          <div class="sub-heading">Control Panel Buttons</div>
+
+          <div class="cmd-info-grid" style="margin-bottom: 16px;">
+            <div class="cmd-info-cell">
+              <div class="cic-label">&#9999;&#65039; Rename</div>
+              <div class="cic-value">Type a new name for your channel. The prefix (star emoji) is kept automatically.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">&#128101; Limit</div>
+              <div class="cic-value">Set a max number of users (1–99). Set to 0 for unlimited.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">&#128274; Private / &#128275; Public</div>
+              <div class="cic-value">Lock to current members only, or re-open to verified members.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">&#128296; Ban User</div>
+              <div class="cic-value">Select someone to block from joining your channel. They are kicked out if already inside.</div>
+            </div>
+          </div>
+
+          <div class="cmd-notes">
+            <div class="cmd-note"><span class="note-dot"></span>Only the channel owner can use the control panel buttons. Others get a "not your channel" message.</div>
+            <div class="cmd-note"><span class="note-dot"></span>If you leave your own channel, ownership transfers to the next person inside after 60 seconds (if you haven't returned).</div>
+            <div class="cmd-note"><span class="note-dot"></span>If a channel sits empty for 60 seconds, it is automatically deleted.</div>
+            <div class="cmd-note note-tip"><span class="note-dot"></span>The Private toggle is great for mid-session — it locks out new joiners while keeping everyone already inside able to leave and rejoin.</div>
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             ADMIN COMMANDS
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="admin">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#128737;</span>
+            <span class="guide-section-title">ADMIN COMMANDS</span>
+          </div>
+          <p class="guide-section-desc">
+            These commands are locked to server administrators only. Regular members cannot run them.
+          </p>
+
+          <!-- !trackC -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128225;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!trackC</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Add one or more channels to the list of channels where Flicker will run chat events.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!trackC <span class="cmd-usage-param">#channel</span></div>
+                  <div class="cmd-usage-line">!trackC <span class="cmd-usage-param">#channel1 #channel2 ...</span></div>
+                  <div class="cmd-usage-line">!trackC &nbsp;&nbsp;(no argument = current channel)</div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Events will only fire in channels on this list. If no channels are tracked, no events will fire anywhere.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You can add multiple channels in one command by mentioning them all.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !RmC -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128683;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!RmC</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Remove channels from the event tracking list. Events will no longer fire in removed channels.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!RmC <span class="cmd-usage-param">#channel</span></div>
+                  <div class="cmd-usage-line">!RmC &nbsp;&nbsp;(no argument = current channel)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !ListC -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128203;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!ListC</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Lists every channel that is currently tracked for events.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!ListC</div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Useful for confirming your channel setup is correct after <code>!trackC</code> / <code>!RmC</code>.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !add -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128176;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!add</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Manually award Stardust to any user. Useful for giveaways, competitions, or fixing missed rewards.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!add <span class="cmd-usage-param">@user &lt;amount&gt;</span></div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!add @Sam 500</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Gives Sam 500 Stardust. Their new balance is shown.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Only adds Stardust — not Chips. Use <code>!chips remove</code> to remove Chips.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Amount must be a positive integer. Negative amounts are not supported here.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !chips remove -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128293;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!chips remove</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Remove Chips from a specific user's balance.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!chips remove <span class="cmd-usage-param">@user &lt;amount&gt;</span></div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!chips remove @Sam 10000</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Removes 10,000 Chips from Sam's balance.</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !shop -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128722;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!shop</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Post a new shop listing into a specified channel. A form pops up to fill in the item details.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!shop <span class="cmd-usage-param">#channel</span></div>
+                  <div class="cmd-usage-line">!shop <span class="cmd-usage-param">#channel</span> &nbsp;&nbsp;(with an image attached)</div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Title</div>
+                    <div class="cic-value">Name of the listing</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Stock</div>
+                    <div class="cic-value">Number, or "inf" for unlimited</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Prices</div>
+                    <div class="cic-value">stardust:100  chips:5000  usd:9.99 (any or all)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Role ID</div>
+                    <div class="cic-value">Optional — enables instant auto-delivery</div>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Click the blue "Fill in Listing Details" button that appears — the form button expires after 2 minutes if unused.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You must set at least one price (Stardust, Chips, or USD). You can mix and match — e.g. a listing that accepts both Stardust and Chips.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Adding a Role ID makes purchase instant: Flicker auto-grants the role without opening a ticket.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Attach an image to <code>!shop #channel</code> to add a thumbnail to the listing.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !VCsetup -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127897;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!VCsetup</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Configure the auto-VC system — set which voice channel acts as the generator and which role can see created channels.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!VCsetup <span class="cmd-usage-param">#voice-channel @role</span></div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!VCsetup #Create-VC @Verified</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Joining "Create-VC" now auto-creates a private channel visible to @Verified members.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Only one generator channel per server is supported.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>The role controls who can <em>see</em> auto-created VCs. Users not in the role won't see them.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !resetgamblestats -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128465;&#65039;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!resetgamblestats</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Resets the server-wide gambling stat counters (chips wagered, earned, lost) back to zero. Does NOT affect any user balances.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!resetgamblestats</div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>This action cannot be undone. The counters are permanently zeroed out.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>User Stardust and Chip balances are never affected.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-box blue" style="margin-top: 20px;">
+            <strong>Dashboard settings:</strong> Many per-server settings — like toggling specific games, events, or commands on/off, and adjusting economy payout values — are managed through the <a href="dashboard.html" style="color: var(--accent-bright);">Flicker Dashboard</a> rather than commands. Log in with a Discord admin account to access them.
+          </div>
+
+        </section>
+
+      </div><!-- /guide-body -->
+    </main>
+  </div><!-- /guide-layout -->
+
+  <div class="guide-sidebar-backdrop" id="guide-sidebar-backdrop"></div>
+
+  <script>
+    // ── Toggle card expand/collapse ──────────────────────
+    function toggleCard(card) {
+      card.classList.toggle('open');
+    }
+
+    // ── Mobile sidebar toggle ────────────────────────────
+    const menuToggle  = document.getElementById('guide-menu-toggle');
+    const sidebar     = document.getElementById('guide-sidebar');
+    const backdrop    = document.getElementById('guide-sidebar-backdrop');
+
+    function openSidebar()  { sidebar.classList.add('open'); backdrop.classList.add('open'); }
+    function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+
+    menuToggle.addEventListener('click', openSidebar);
+    backdrop.addEventListener('click', closeSidebar);
+
+    // Close sidebar when a TOC link is clicked on mobile
+    sidebar.querySelectorAll('.toc-link').forEach(link => {
+      link.addEventListener('click', () => { if (window.innerWidth <= 768) closeSidebar(); });
+    });
+
+    // ── Active TOC highlight on scroll ──────────────────
+    const sections = document.querySelectorAll('.guide-section');
+    const tocLinks = document.querySelectorAll('.toc-link');
+
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          tocLinks.forEach(l => l.classList.remove('active'));
+          const active = document.querySelector(`.toc-link[href="#${entry.target.id}"]`);
+          if (active) active.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    sections.forEach(s => observer.observe(s));
+
+    // ── Animated starfield ───────────────────────────────
+    (function () {
+      const canvas = document.getElementById('starfield');
+      const ctx = canvas.getContext('2d');
+      let stars = [];
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        stars = Array.from({ length: 120 }, () => ({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          r: Math.random() * 1.1 + 0.1,
+          phase: Math.random() * Math.PI * 2,
+          speed: Math.random() * 0.4 + 0.15,
+          drift: (Math.random() - 0.5) * 0.05,
+        }));
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const t = Date.now() / 1000;
+        for (const s of stars) {
+          const a = 0.03 + 0.14 * (0.5 + 0.5 * Math.sin(t * s.speed + s.phase));
+          s.y -= 0.05;
+          s.x += s.drift;
+          if (s.y < -2) { s.y = canvas.height + 2; s.x = Math.random() * canvas.width; }
+          ctx.beginPath();
+          ctx.rect(s.x, s.y, s.r * 1.4, s.r * 1.4);
+          ctx.fillStyle = `rgba(140, 180, 255, ${a})`;
+          ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+
+      resize();
+      draw();
+      window.addEventListener('resize', resize);
+    })();
+  </script>
+</body>
+</html>
