@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://flicker-bot.com/guide">
   <meta property="og:image" content="https://flicker-bot.com/og-image.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=8">
   <style>
     /* ── Guide Layout ─────────────────────────────────── */
     .guide-layout {
@@ -763,6 +763,9 @@
         <a href="#economy" class="toc-link">
           <span class="toc-icon">&#10024;</span> Economy
         </a>
+        <a href="#social" class="toc-link">
+          <span class="toc-icon">&#128101;</span> Social
+        </a>
         <a href="#events" class="toc-link">
           <span class="toc-icon">&#127381;</span> Chat Events
         </a>
@@ -800,7 +803,7 @@
         <div class="guide-hero">
           <div class="guide-hero-title">&#9889; Welcome to Flicker</div>
           <p class="guide-hero-sub">
-            Flicker is a Discord bot with a full economy, gambling games, random chat events, a shop, and private voice channels.
+            Flicker is a Discord bot with a full economy, gambling games, random chat events, social commands, a shop, and private voice channels.
             All commands start with <strong>!</strong> — just type them in any channel where Flicker is active.
           </p>
           <div class="guide-chips-row">
@@ -808,6 +811,8 @@
             <span class="guide-chip">&#127922; Chips — gambling currency</span>
             <span class="guide-chip">&#128640; 15 s cooldown on gambling</span>
             <span class="guide-chip">&#9203; Events fire automatically</span>
+            <span class="guide-chip">&#128197; Daily rewards &amp; streaks</span>
+            <span class="guide-chip">&#10084;&#65039; Reputation system</span>
           </div>
         </div>
 
@@ -1101,6 +1106,258 @@
             </div>
           </div>
 
+          <!-- !daily -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128197;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!daily</span>
+                  <span class="cmd-badge badge-hourly">Daily</span>
+                </div>
+                <div class="cmd-desc">Claim a free Stardust reward every day. Build a streak by claiming each day to earn larger bonuses.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!daily</div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">22 hours (configurable)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Base reward</div>
+                    <div class="cic-value">20–50 Stardust (random)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Streak bonus</div>
+                    <div class="cic-value">+5 Stardust per streak day (max +150)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Streak reset</div>
+                    <div class="cic-value">Miss by &gt;26h and streak resets to 1</div>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Your streak grows by 1 each successful claim. The longer you keep it up, the more Stardust you earn per day.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>Streak milestones unlock achievements: 3-day, 7-day, and 30-day streaks each award a badge.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Base amount and streak bonus values can be customised by admins in the Dashboard.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !rob -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#129440;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!rob</span>
+                </div>
+                <div class="cmd-desc">Attempt to steal Stardust from another user. 40% chance of success — get caught and you'll pay a fine.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!rob <span class="cmd-usage-param">@user</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Success chance</div>
+                    <div class="cic-value">40%</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Stolen (success)</div>
+                    <div class="cic-value">10–30% of victim's balance</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Fine (caught)</div>
+                    <div class="cic-value">15% of your own balance</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Min victim balance</div>
+                    <div class="cic-value">50 Stardust</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">60 seconds</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!rob @Sam</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">If successful, steals 10–30% of Sam's Stardust. If caught, you pay a fine.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>The victim must have at least 50 Stardust — you can't rob someone with nothing.</div>
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>Getting caught transfers your fine to the victim, so you lose Stardust too.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You cannot rob yourself or bots.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SOCIAL
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="social">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#128101;</span>
+            <span class="guide-section-title">SOCIAL</span>
+          </div>
+          <p class="guide-section-desc">
+            See your stats, give reputation to friends, and run server giveaways and polls.
+          </p>
+
+          <!-- !profile -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128196;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!profile</span>
+                  <span class="cmd-aliases">also: !card</span>
+                </div>
+                <div class="cmd-desc">View a full profile card — balances, rep, daily streak, games played, total wagered, biggest win, and unlocked achievements.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!profile</div>
+                  <div class="cmd-usage-line">!profile <span class="cmd-usage-param">@user</span> &nbsp;&nbsp;(view someone else)</div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Shows Stardust, Chips, reputation, daily streak, total games played, chips wagered, and biggest win.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Unlocked achievements are displayed with icons at the bottom of the embed.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>You can check anyone else's profile by mentioning them.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !rep -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#10084;&#65039;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!rep</span>
+                  <span class="cmd-aliases">also: !reputation</span>
+                </div>
+                <div class="cmd-desc">Give a daily reputation point to another user. Rep shows up on their profile — a simple way to appreciate helpful members.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!rep <span class="cmd-usage-param">@user</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">22 hours per person</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Achievement</div>
+                    <div class="cic-value">Receiver unlocks "Well Loved" at 5 rep</div>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>You can only give one rep every 22 hours — it resets daily.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You cannot rep yourself or bots.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Rep totals are visible on <code>!profile</code>.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !giveaway -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127881;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!giveaway</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Start a timed Stardust giveaway. Anyone can enter by clicking the button — when time runs out, a winner is picked at random.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!giveaway <span class="cmd-usage-param">&lt;minutes&gt; &lt;prize_stardust&gt;</span></div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!giveaway 10 500</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Opens a 10-minute giveaway for 500 Stardust. One random entrant wins when time is up.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Anyone can enter by clicking the "Enter Giveaway" button — the bot tracks entrants automatically.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>When the timer expires Flicker announces the winner and awards the prize instantly.</div>
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>If nobody enters, Flicker announces that the giveaway ended with no entries.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !poll -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128203;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!poll</span>
+                </div>
+                <div class="cmd-desc">Create a timed yes/no poll. Members vote with buttons — results are shown when time runs out.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!poll <span class="cmd-usage-param">&lt;minutes&gt; &lt;question&gt;</span></div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!poll 5 Should we add movie night?</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Opens a 5-minute poll. Members click Yes or No. Results shown after 5 minutes.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Each user can only vote once — clicking again has no effect.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>The embed updates live as votes come in, showing a running tally.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>When the timer ends, buttons are disabled and the final result is displayed.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -1112,7 +1369,7 @@
             <span class="guide-section-title">CHAT EVENTS</span>
           </div>
           <p class="guide-section-desc">
-            Events pop up on their own while people are chatting in tracked channels. They are the only way to earn Stardust (aside from <code>!pet</code>). There is a 3-minute cooldown between events, so they won't spam the channel.
+            Events pop up on their own while people are chatting in tracked channels. They award Stardust to whoever responds fastest. There is a 3-minute cooldown between events, so they won't spam the channel.
           </p>
 
           <div class="info-box green">
@@ -1527,6 +1784,168 @@
             </div>
           </div>
 
+          <!-- !dice -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#127922;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!dice</span>
+                </div>
+                <div class="cmd-desc">Roll a die and guess the outcome. Pick an exact face (1–6) for a big payout, or bet high/low for near-even odds.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!dice <span class="cmd-usage-param">&lt;chips&gt; &lt;1–6 | high | low&gt;</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Exact number win</div>
+                    <div class="cic-value">5× your bet</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">High (4–6) / Low (1–3)</div>
+                    <div class="cic-value">1.9× your bet</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">15 seconds</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!dice 1000 3</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Bets 1,000 on the die landing on 3. Win = 5,000 Chips.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!dice 500 high</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Bets 500 on rolling 4, 5, or 6. Win = 950 Chips.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>High = rolls 4, 5, or 6. Low = rolls 1, 2, or 3.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Exact number payout and high/low multiplier can be adjusted by admins in the Dashboard.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !crash -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#128200;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!crash</span>
+                </div>
+                <div class="cmd-desc">Watch a multiplier climb in real time and cash out before it crashes. Wait too long and you lose everything.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!crash <span class="cmd-usage-param">&lt;chips&gt;</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Multiplier growth</div>
+                    <div class="cic-value">Increases every 0.75 seconds</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Max multiplier</div>
+                    <div class="cic-value">Up to 50×</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">House edge</div>
+                    <div class="cic-value">~5% (configurable)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Button timeout</div>
+                    <div class="cic-value">30s — auto cashes out at current multiplier</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">Cash out at 2.5×</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Receive 2.5× your original bet.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">Crash occurs at 1.3×</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">You lose your entire bet if you haven't cashed out yet.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Click <strong>Cash Out</strong> at any time while the game is running to lock in your multiplier.</div>
+                  <div class="cmd-note note-warn"><span class="note-dot"></span>If the rocket crashes before you cash out, your entire bet is lost.</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>The crash point is determined before the game starts — the animation is just a reveal.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !rps -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#9994;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!rps</span>
+                </div>
+                <div class="cmd-desc">Rock, Paper, Scissors against Flicker. Beat the bot to win nearly 2× your bet. A tie returns your stake.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!rps <span class="cmd-usage-param">&lt;chips&gt; rock</span></div>
+                  <div class="cmd-usage-line">!rps <span class="cmd-usage-param">&lt;chips&gt; paper</span></div>
+                  <div class="cmd-usage-line">!rps <span class="cmd-usage-param">&lt;chips&gt; scissors</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Win payout</div>
+                    <div class="cic-value">1.9× your bet</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Tie</div>
+                    <div class="cic-value">Bet returned (no loss)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Loss</div>
+                    <div class="cic-value">Bet lost</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">15 seconds</div>
+                  </div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!rps 1000 rock</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">If Flicker throws scissors, you win 1,900 Chips.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Flicker chooses randomly — no patterns or cheating (unless you're the boss).</div>
+                  <div class="cmd-note note-tip"><span class="note-dot"></span>A tie is safe — you keep your bet and can try again.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- !stats -->
           <div class="cmd-card" onclick="toggleCard(this)">
             <div class="cmd-card-header">
@@ -1547,9 +1966,9 @@
                   <div class="cmd-usage-line">!stats <span class="cmd-usage-param">@user</span> &nbsp;&nbsp;(view someone else's stats)</div>
                 </div>
                 <div class="cmd-notes">
-                  <div class="cmd-note"><span class="note-dot"></span>Shows a breakdown per game: Coinflip, Slots, Blackjack, Higher/Lower, Warp, Roulette.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Shows a breakdown per game: Coinflip, Slots, Blackjack, Higher/Lower, Roulette, Warp, Dice, Crash, and RPS.</div>
                   <div class="cmd-note"><span class="note-dot"></span>Net column is green if profitable, red if in the hole overall.</div>
-                  <div class="cmd-note"><span class="note-dot"></span>Mention another user (<code>!stats @Sam</code>) to view their profile.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Mention another user (<code>!stats @Sam</code>) to view their stats.</div>
                 </div>
               </div>
             </div>
