@@ -184,14 +184,14 @@ async function loadDetailTab(tab, guild) {
   panel.innerHTML = `<div style="color:var(--text-2);font-size:0.83rem;">Loading…</div>`;
   panel.dataset.loaded = guild.id;
 
-  if (tab === "overview") renderOverviewPanel(panel, guild);
+  if (tab === "overview") await renderOverviewPanel(panel, guild);
   else if (tab === "economy") await renderEconomyPanel(panel, guild);
   else if (tab === "channels") await renderChannelsPanel(panel, guild);
   else if (tab === "actions") renderActionsPanel(panel, guild);
 }
 
 // ── Overview tab ──────────────────────────────────────
-function renderOverviewPanel(panel, guild) {
+async function renderOverviewPanel(panel, guild) {
   panel.innerHTML = `
     <div class="panel-grid">
       <div class="stat-card">
@@ -210,7 +210,7 @@ function renderOverviewPanel(panel, guild) {
       </div>
     </div>
 
-    <div class="card">
+    <div class="card" style="margin-bottom:16px;">
       <div class="card-body">
         <div class="ctrl-row">
           <div class="ctrl-row-text">
@@ -225,7 +225,38 @@ function renderOverviewPanel(panel, guild) {
           </label>
         </div>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">User Balances</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="text" id="user-search" class="user-search" placeholder="Search users…">
+          <button class="btn-danger btn-xs" onclick="doResetEconomy('${guild.id}')">Reset All</button>
+        </div>
+      </div>
+      <div class="data-table-wrap" style="border-top:none;border-radius:0 0 var(--radius) var(--radius);">
+        <table class="data-table">
+          <thead><tr><th>User</th><th>Stardust</th><th>Chips</th><th></th></tr></thead>
+          <tbody id="users-tbody"><tr class="empty-row"><td colspan="4">Loading…</td></tr></tbody>
+        </table>
+      </div>
     </div>`;
+
+  document.getElementById("user-search")?.addEventListener("input", e => {
+    const q = e.target.value.toLowerCase();
+    document.querySelectorAll("#users-tbody tr[data-uid]").forEach(row => {
+      row.hidden = q && !row.dataset.search.includes(q);
+    });
+  });
+
+  const data = await adminReq(`/admin/guild/${guild.id}/users`);
+  if (!data) return;
+  const tbody = document.getElementById("users-tbody");
+  if (!tbody) return;
+  tbody.innerHTML = data.users.length
+    ? data.users.map(buildUserRow).join("")
+    : '<tr class="empty-row"><td colspan="4">No users with a balance.</td></tr>';
 }
 
 async function doToggleDisabled(guildId, disabled) {
