@@ -293,10 +293,14 @@ const ECONOMY_SECTIONS = [
   {
     title: "Random Events",
     fields: [
-      { type: "range", label: "Fast Type",     minKey: "fast_type_min",    maxKey: "fast_type_max",    minDefault: 10, maxDefault: 20,  min: 1, max: 500, step: 1, unit: "✨", desc: "Stardust reward for Fast Type. Default: 10–20" },
-      { type: "range", label: "Math Puzzle",   minKey: "math_min",         maxKey: "math_max",         minDefault: 20, maxDefault: 40,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 20–40" },
-      { type: "range", label: "Trivia",        minKey: "trivia_min",       maxKey: "trivia_max",       minDefault: 50, maxDefault: 100, min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 50–100" },
-      { type: "range", label: "Word Scramble", minKey: "word_scramble_min",maxKey: "word_scramble_max",minDefault: 15, maxDefault: 30,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 15–30" },
+      { type: "range",  label: "Fast Type",     minKey: "fast_type_min",    maxKey: "fast_type_max",    minDefault: 10, maxDefault: 20,  min: 1, max: 500, step: 1,  unit: "✨", desc: "Stardust reward for Fast Type. Default: 10–20" },
+      { type: "single", label: "Fast Type Timeout",     key: "fast_type_timeout",     default: 10, min: 5, max: 120, step: 1, unit: "s", desc: "Seconds before Fast Type expires. Default: 10" },
+      { type: "range",  label: "Math Puzzle",   minKey: "math_min",         maxKey: "math_max",         minDefault: 20, maxDefault: 40,  min: 1, max: 500, step: 1,  unit: "✨", desc: "Default: 20–40" },
+      { type: "single", label: "Math Puzzle Timeout",   key: "math_timeout",          default: 12, min: 5, max: 120, step: 1, unit: "s", desc: "Seconds before Math Puzzle expires. Default: 12" },
+      { type: "range",  label: "Trivia",        minKey: "trivia_min",       maxKey: "trivia_max",       minDefault: 50, maxDefault: 100, min: 1, max: 500, step: 1,  unit: "✨", desc: "Default: 50–100" },
+      { type: "single", label: "Trivia Timeout",         key: "trivia_timeout",        default: 30, min: 5, max: 120, step: 1, unit: "s", desc: "Seconds before Trivia expires. Default: 30" },
+      { type: "range",  label: "Word Scramble", minKey: "word_scramble_min",maxKey: "word_scramble_max",minDefault: 15, maxDefault: 30,  min: 1, max: 500, step: 1,  unit: "✨", desc: "Default: 15–30" },
+      { type: "single", label: "Word Scramble Timeout",  key: "word_scramble_timeout", default: 20, min: 5, max: 120, step: 1, unit: "s", desc: "Seconds before Word Scramble expires. Default: 20" },
     ],
   },
 ];
