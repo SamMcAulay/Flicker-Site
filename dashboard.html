@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://flicker-bot.com/dashboard">
   <meta property="og:image" content="https://flicker-bot.com/og-image.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=6">
+  <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
 
@@ -57,6 +57,11 @@
         <button class="nav-tab" data-tab="responder">
           <span class="nav-icon">💬</span>
           <span class="nav-label">Auto-Responder</span>
+        </button>
+
+        <button class="nav-tab" data-tab="eventtext">
+          <span class="nav-icon">✏️</span>
+          <span class="nav-label">Event Text</span>
         </button>
 
         <button class="nav-tab" data-tab="profile">
@@ -123,6 +128,11 @@
           <!-- rendered by dashboard.js -->
         </div>
 
+        <!-- ── Event Text Tab ───────────────────── -->
+        <div id="tab-eventtext" class="tab-panel">
+          <!-- rendered by dashboard.js -->
+        </div>
+
         <!-- ── Bot Profile Tab ──────────────────── -->
         <div id="tab-profile" class="tab-panel">
           <!-- rendered by dashboard.js -->
@@ -135,9 +145,9 @@
 
   <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
-  <script src="js/config.js?v=6"></script>
-  <script src="js/auth.js?v=6"></script>
-  <script src="js/api.js?v=6"></script>
-  <script src="js/dashboard.js?v=6"></script>
+  <script src="js/config.js?v=7"></script>
+  <script src="js/auth.js?v=7"></script>
+  <script src="js/api.js?v=7"></script>
+  <script src="js/dashboard.js?v=7"></script>
 </body>
 </html>

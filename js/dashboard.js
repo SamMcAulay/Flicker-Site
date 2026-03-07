@@ -132,6 +132,7 @@ async function loadSettings(guildId) {
     renderTogglesTab(currentSettings);
     renderEconomyTab(currentSettings);
     renderResponderTab(currentSettings);
+    renderEventTextTab(currentSettings);
     renderProfileTab(currentSettings);
   } catch (err) {
     console.error("Failed to load settings:", err);
@@ -171,6 +172,11 @@ async function saveSettings() {
       payout_overrides[input.dataset.key] = parseFloat(input.value);
     });
 
+    const text_overrides = {};
+    document.querySelectorAll(".text-override-input[data-key]").forEach((input) => {
+      text_overrides[input.dataset.key] = input.value;
+    });
+
     const chat_toggles = {};
     document.querySelectorAll(".builtin-card[data-key]").forEach((card) => {
       chat_toggles[card.dataset.key] = card.classList.contains("is-on");
@@ -182,6 +188,7 @@ async function saveSettings() {
       command_toggles,
       payout_overrides,
       chat_toggles,
+      text_overrides,
     });
 
     isDirty = false;
@@ -752,6 +759,98 @@ function initStarfield() {
   resize();
   draw();
   window.addEventListener("resize", resize);
+}
+
+// ── Event Text Tab ─────────────────────────────────────
+const EVENT_TEXT_SECTIONS = [
+  {
+    title: "Stardust Drop",
+    fields: [
+      { key: "drop_title",        label: "Embed Title",     desc: "Title of the drop embed." },
+      { key: "drop_desc",         label: "Description",     desc: "Opening line of the embed." },
+      { key: "drop_catch_prompt", label: "Catch Prompt",    desc: "Text shown next to each open slot." },
+      { key: "drop_win",          label: "Win Message",     desc: "Sent when at least one person caught the drop." },
+      { key: "drop_lose",         label: "No One Caught",   desc: "Sent when nobody caught it in time." },
+    ],
+  },
+  {
+    title: "Fast Type",
+    fields: [
+      { key: "fast_type_title", label: "Embed Title",   desc: "Title of the fast type embed." },
+      { key: "fast_type_desc",  label: "Description",   desc: "Text above the code to type." },
+      { key: "fast_type_win",   label: "Win Message",   desc: "Placeholders: {winner}, {reward}" },
+      { key: "fast_type_lose",  label: "Lose Message",  desc: "Placeholders: {code}" },
+    ],
+  },
+  {
+    title: "Math Puzzle",
+    fields: [
+      { key: "math_title", label: "Embed Title",   desc: "Title of the math embed." },
+      { key: "math_desc",  label: "Description",   desc: "Text above the equation." },
+      { key: "math_win",   label: "Win Message",   desc: "Placeholders: {winner}, {reward}" },
+      { key: "math_lose",  label: "Lose Message",  desc: "Placeholders: {answer}" },
+    ],
+  },
+  {
+    title: "Trivia",
+    fields: [
+      { key: "trivia_title",   label: "Embed Title",    desc: "Title of the trivia embed." },
+      { key: "trivia_tagline", label: "Tagline",        desc: "Line shown below the answer options." },
+      { key: "trivia_correct", label: "Correct Answer", desc: "Placeholders: {winner}, {reward}, {answer}" },
+      { key: "trivia_wrong",   label: "Wrong Answer",   desc: "Placeholders: {answer}" },
+      { key: "trivia_timeout", label: "Timed Out",      desc: "Placeholders: {answer}" },
+    ],
+  },
+  {
+    title: "Word Scramble",
+    fields: [
+      { key: "scramble_title", label: "Embed Title",   desc: "Title of the scramble embed." },
+      { key: "scramble_desc",  label: "Description",   desc: "Text above the scrambled word." },
+      { key: "scramble_win",   label: "Win Message",   desc: "Placeholders: {winner}, {reward}, {word}" },
+      { key: "scramble_lose",  label: "Lose Message",  desc: "Placeholders: {word}" },
+    ],
+  },
+];
+
+function renderEventTextTab(settings) {
+  const to = settings.text_overrides || {};
+  const container = document.getElementById("tab-eventtext");
+  container.innerHTML = '<div class="economy-fields"></div>';
+  const fields = container.querySelector(".economy-fields");
+
+  const intro = document.createElement("p");
+  intro.className = "tab-desc";
+  intro.textContent = "Customise the text Flicker uses for each game and event. Use the placeholders listed in the description where you want dynamic values inserted.";
+  fields.appendChild(intro);
+
+  EVENT_TEXT_SECTIONS.forEach((section) => {
+    const heading = document.createElement("h3");
+    heading.className = "section-title";
+    heading.innerHTML = `<span class="section-pip"></span>${section.title}`;
+    fields.appendChild(heading);
+
+    section.fields.forEach((field) => {
+      const div = document.createElement("div");
+      div.className = "economy-field";
+      const value = (to[field.key] ?? "").replace(/"/g, "&quot;");
+      div.innerHTML = `
+        <div class="ef-header">
+          <label class="ef-label">${field.label}</label>
+          <button class="btn-reset" title="Reset to default">Reset</button>
+        </div>
+        <p class="ef-desc">${field.desc}</p>
+        <div class="ef-input-row">
+          <input type="text" class="text-override-input number-input" style="flex:1;min-width:0;" data-key="${field.key}" value="${value}">
+        </div>
+      `;
+      div.querySelector("input").addEventListener("input", markDirty);
+      div.querySelector(".btn-reset").addEventListener("click", () => {
+        div.querySelector("input").value = "";
+        markDirty();
+      });
+      fields.appendChild(div);
+    });
+  });
 }
 
 document.addEventListener("DOMContentLoaded", init);
