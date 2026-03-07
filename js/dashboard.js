@@ -810,6 +810,62 @@ const EVENT_TEXT_SECTIONS = [
       { key: "scramble_lose",  label: "Lose Message",  desc: "Placeholders: {word}" },
     ],
   },
+  {
+    title: "Coin Flip",
+    fields: [
+      { key: "cf_spinning", label: "Spinning Text", desc: "Shown while the coin animates." },
+      { key: "cf_win",      label: "Win Message",   desc: "Placeholders: {result}, {icon}, {winnings}" },
+      { key: "cf_lose",     label: "Lose Message",  desc: "Placeholders: {result}, {icon}, {bet}" },
+    ],
+  },
+  {
+    title: "Slots",
+    fields: [
+      { key: "slots_title", label: "Embed Title",  desc: "Title of the slots embed." },
+      { key: "slots_win",   label: "Win Message",  desc: "Placeholders: {winnings}, {multiplier}" },
+      { key: "slots_lose",  label: "Lose Message", desc: "No placeholders." },
+    ],
+  },
+  {
+    title: "Blackjack",
+    fields: [
+      { key: "bj_title",       label: "Embed Title",    desc: "Title of the blackjack embed." },
+      { key: "bj_natural_win", label: "Natural 21",     desc: "Instant blackjack win. Placeholders: {payout}" },
+      { key: "bj_bust",        label: "Bust",           desc: "Player goes over 21. No placeholders." },
+      { key: "bj_win",         label: "Player Wins",    desc: "No placeholders." },
+      { key: "bj_push",        label: "Push",           desc: "Tie — bet returned. No placeholders." },
+      { key: "bj_dealer_wins", label: "Dealer Wins",    desc: "No placeholders." },
+    ],
+  },
+  {
+    title: "Higher or Lower",
+    fields: [
+      { key: "hilo_title",   label: "Embed Title",  desc: "Title of the hi-lo embed." },
+      { key: "hilo_tie",     label: "Tie",          desc: "Placeholders: {card}, {value}" },
+      { key: "hilo_correct", label: "Correct Guess",desc: "Placeholders: {card}, {value}" },
+      { key: "hilo_wrong",   label: "Wrong Guess",  desc: "Placeholders: {card}, {value}, {bet}" },
+      { key: "hilo_cashout", label: "Cash Out",     desc: "Placeholders: {payout}, {mult}" },
+    ],
+  },
+  {
+    title: "Warp Drive",
+    fields: [
+      { key: "warp_title",    label: "Embed Title",    desc: "Title used throughout the warp game." },
+      { key: "warp_start",    label: "Opening Text",   desc: "Shown when the game starts. No placeholders." },
+      { key: "warp_overload", label: "Overload (Lose)",desc: "Placeholders: {bet}" },
+      { key: "warp_jump",     label: "Successful Jump",desc: "Placeholders: {jumps}" },
+      { key: "warp_dock",     label: "Cash Out",       desc: "Placeholders: {payout}, {mult}" },
+    ],
+  },
+  {
+    title: "Roulette",
+    fields: [
+      { key: "rt_title",    label: "Embed Title",   desc: "Title of the roulette embed." },
+      { key: "rt_spinning", label: "Spinning Text", desc: "Shown while the wheel animates. No placeholders." },
+      { key: "rt_win",      label: "Win Message",   desc: "Placeholders: {winnings}, {multiplier}" },
+      { key: "rt_lose",     label: "Lose Message",  desc: "Placeholders: {bet}" },
+    ],
+  },
 ];
 
 function renderEventTextTab(settings) {
