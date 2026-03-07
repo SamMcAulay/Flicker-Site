@@ -232,7 +232,6 @@ const COMMANDS = [
   { key: "buychips", icon: "🎰", label: "!buychips" },
   { key: "top",      icon: "🏆", label: "!top" },
   { key: "daily",    icon: "📅", label: "!daily" },
-  { key: "work",     icon: "⚙️", label: "!work" },
   { key: "rob",      icon: "🦝", label: "!rob" },
   { key: "profile",  icon: "👤", label: "!profile" },
   { key: "rep",      icon: "❤️", label: "!rep" },
@@ -308,13 +307,6 @@ const ECONOMY_SECTIONS = [
       { key: "daily_streak_bonus",   label: "Streak Bonus per Day",   default: 5,    min: 0,    max: 50,   step: 1,    unit: "✨/day",   desc: "Extra Stardust per streak day. Default: +5" },
       { key: "daily_streak_max",     label: "Max Streak Bonus Days",  default: 30,   min: 1,    max: 365,  step: 1,    unit: "days",     desc: "Streak bonus caps at this many days. Default: 30" },
       { key: "daily_cooldown_hours", label: "Cooldown",               default: 22,   min: 1,    max: 48,   step: 1,    unit: "h",        desc: "Hours between daily claims. Default: 22h" },
-    ],
-  },
-  {
-    title: "Work",
-    fields: [
-      { type: "range",  label: "Work Reward",             minKey: "work_min",          maxKey: "work_max",         minDefault: 10, maxDefault: 25,  min: 1,   max: 500,  step: 1,    unit: "✨",      desc: "Stardust range per work use. Default: 10–25" },
-      { key: "work_cooldown_hours",  label: "Cooldown",               default: 4,    min: 1,    max: 24,   step: 1,    unit: "h",        desc: "Hours between work uses. Default: 4h" },
     ],
   },
   {
@@ -1067,12 +1059,6 @@ const EVENT_TEXT_SECTIONS = [
       { key: "daily_claim",       label: "Claim Message",        desc: "Placeholders: {reward}, {streak}" },
       { key: "daily_cooldown",    label: "Cooldown Message",     desc: "Placeholders: {hours}, {mins}" },
       { key: "daily_streak_lost", label: "Streak Reset Message", desc: "Sent when streak resets. Placeholders: {reward}, {streak}" },
-    ],
-  },
-  {
-    title: "Work",
-    fields: [
-      { key: "work_cooldown", label: "Cooldown Message", desc: "Placeholders: {hours}, {mins}" },
     ],
   },
   {
