@@ -437,20 +437,6 @@ function renderActionsPanel(panel, guild) {
   panel.innerHTML = `
     <div class="action-grid">
       <div class="card">
-        <div class="card-header"><span class="card-title">Seed Builtins</span></div>
-        <div class="card-body">
-          <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:12px;">Insert the default auto-responder groups into this server (skips any that already exist).</p>
-          <button class="btn-primary" onclick="doSeedBuiltins('${guild.id}')">Run !seedbuiltins</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-header"><span class="card-title">Seed Event Texts</span></div>
-        <div class="card-body">
-          <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:12px;">Apply Wish Galaxy–flavoured text overrides for all events and gambling games.</p>
-          <button class="btn-primary" onclick="doSeedEventTexts('${guild.id}')">Run !seedeventtexts</button>
-        </div>
-      </div>
-      <div class="card">
         <div class="card-header"><span class="card-title">Broadcast Message</span></div>
         <div class="card-body">
           <p style="font-size:0.8rem;color:var(--text-2);margin-bottom:12px;">Send a message to all allowed event channels in this server.</p>
@@ -466,21 +452,6 @@ function renderActionsPanel(panel, guild) {
         </div>
       </div>
     </div>`;
-}
-
-async function doSeedBuiltins(guildId) {
-  try {
-    const res = await adminReq(`/admin/guild/${guildId}/seed-builtins`, { method: "POST" });
-    const seeded = res.seeded?.length ? res.seeded.join(", ") : "none (all existed)";
-    alert(`Done. Seeded: ${seeded}`);
-  } catch (err) { alert("Failed: " + err.message); }
-}
-
-async function doSeedEventTexts(guildId) {
-  try {
-    await adminReq(`/admin/guild/${guildId}/seed-event-texts`, { method: "POST" });
-    alert("Done. Event text overrides applied.");
-  } catch (err) { alert("Failed: " + err.message); }
 }
 
 async function doBroadcast(guildId) {
