@@ -133,6 +133,7 @@ async function loadSettings(guildId) {
     renderEconomyTab(currentSettings);
     renderResponderTab(currentSettings);
     renderEventTextTab(currentSettings);
+    renderWelcomeTab(currentSettings);
     renderProfileTab(currentSettings);
   } catch (err) {
     console.error("Failed to load settings:", err);
@@ -214,6 +215,9 @@ const GAMES = [
   { key: "hilo",      icon: "📈", label: "Higher/Lower" },
   { key: "roulette",  icon: "🎡", label: "Roulette" },
   { key: "warp",      icon: "🚀", label: "Hyperwarp" },
+  { key: "dice",      icon: "🎲", label: "Dice" },
+  { key: "crash",     icon: "📉", label: "Crash" },
+  { key: "rps",       icon: "🎮", label: "Rock Paper Scissors" },
 ];
 const EVENTS = [
   { key: "chat_drops",    icon: "✨", label: "Chat Drops" },
@@ -227,6 +231,13 @@ const COMMANDS = [
   { key: "pay",      icon: "💸", label: "!pay" },
   { key: "buychips", icon: "🎰", label: "!buychips" },
   { key: "top",      icon: "🏆", label: "!top" },
+  { key: "daily",    icon: "📅", label: "!daily" },
+  { key: "work",     icon: "⚙️", label: "!work" },
+  { key: "rob",      icon: "🦝", label: "!rob" },
+  { key: "profile",  icon: "👤", label: "!profile" },
+  { key: "rep",      icon: "❤️", label: "!rep" },
+  { key: "poll",     icon: "📊", label: "!poll" },
+  { key: "giveaway", icon: "🎉", label: "!giveaway" },
 ];
 
 function renderTogglesTab(settings) {
@@ -278,13 +289,41 @@ const ECONOMY_SECTIONS = [
   {
     title: "Other Games",
     fields: [
-      { key: "coinflip_multiplier",          label: "Coinflip — Win",             default: 2.0,  min: 1.1, max: 10.0, step: 0.1, unit: "×", desc: "Payout for a winning flip. Default: 2.0×" },
-      { key: "blackjack_win_multiplier",     label: "Blackjack — Win",            default: 2.0,  min: 1.1, max: 5.0,  step: 0.1, unit: "×", desc: "Payout for beating the dealer. Default: 2.0×" },
-      { key: "blackjack_natural_multiplier", label: "Blackjack — Natural 21",     default: 2.5,  min: 1.5, max: 10.0, step: 0.1, unit: "×", desc: "Payout for an instant blackjack. Default: 2.5×" },
-      { key: "hilo_step",                    label: "HiLo — Step",                default: 0.2,  min: 0.1, max: 2.0,  step: 0.1, unit: "×", desc: "Multiplier added per correct guess. Default: +0.2×" },
-      { key: "roulette_color_multiplier",    label: "Roulette — Color / Even-Odd",default: 1.9,  min: 1.1, max: 5.0,  step: 0.1, unit: "×", desc: "Red/black/odd/even payout. Default: 1.9×" },
-      { key: "roulette_number_multiplier",   label: "Roulette — Straight Number", default: 35,   min: 10,  max: 100,  step: 1,   unit: "×", desc: "Specific number bet payout. Default: 35×" },
-      { key: "warp_multiplier_step",         label: "Warp — Multiplier Per Jump", default: 1.5,  min: 1.1, max: 5.0,  step: 0.1, unit: "×", desc: "Multiplier growth per warp jump. Default: 1.5×" },
+      { key: "coinflip_multiplier",          label: "Coinflip — Win",             default: 2.0,  min: 1.1, max: 10.0, step: 0.1,  unit: "×",         desc: "Payout for a winning flip. Default: 2.0×" },
+      { key: "blackjack_win_multiplier",     label: "Blackjack — Win",            default: 2.0,  min: 1.1, max: 5.0,  step: 0.1,  unit: "×",         desc: "Payout for beating the dealer. Default: 2.0×" },
+      { key: "blackjack_natural_multiplier", label: "Blackjack — Natural 21",     default: 2.5,  min: 1.5, max: 10.0, step: 0.1,  unit: "×",         desc: "Payout for an instant blackjack. Default: 2.5×" },
+      { key: "hilo_step",                    label: "HiLo — Step",                default: 0.2,  min: 0.1, max: 2.0,  step: 0.1,  unit: "×",         desc: "Multiplier added per correct guess. Default: +0.2×" },
+      { key: "roulette_color_multiplier",    label: "Roulette — Color / Even-Odd",default: 1.9,  min: 1.1, max: 5.0,  step: 0.1,  unit: "×",         desc: "Red/black/odd/even payout. Default: 1.9×" },
+      { key: "roulette_number_multiplier",   label: "Roulette — Straight Number", default: 35,   min: 10,  max: 100,  step: 1,    unit: "×",         desc: "Specific number bet payout. Default: 35×" },
+      { key: "warp_multiplier_step",         label: "Warp — Multiplier Per Jump", default: 1.5,  min: 1.1, max: 5.0,  step: 0.1,  unit: "×",         desc: "Multiplier growth per warp jump. Default: 1.5×" },
+      { key: "dice_win_multiplier",          label: "Dice — Straight Number Win", default: 5.0,  min: 2.0, max: 20.0, step: 0.5,  unit: "×",         desc: "Payout for guessing the exact roll. Default: 5.0×" },
+      { key: "rps_win_multiplier",           label: "RPS — Win",                  default: 1.9,  min: 1.1, max: 5.0,  step: 0.1,  unit: "×",         desc: "Payout for winning Rock Paper Scissors. Default: 1.9×" },
+      { key: "crash_house_edge",             label: "Crash — House Edge",         default: 0.05, min: 0.01, max: 0.20, step: 0.01, unit: "(0–1)",     desc: "Probability of an early crash. 0.05 = 5% house edge. Default: 0.05" },
+    ],
+  },
+  {
+    title: "Daily Rewards",
+    fields: [
+      { type: "range",  label: "Base Reward",            minKey: "daily_base_min",    maxKey: "daily_base_max",   minDefault: 20, maxDefault: 50,  min: 1,   max: 500,  step: 1,    unit: "✨",      desc: "Stardust range for daily claim. Default: 20–50" },
+      { key: "daily_streak_bonus",   label: "Streak Bonus per Day",   default: 5,    min: 0,    max: 50,   step: 1,    unit: "✨/day",   desc: "Extra Stardust per streak day. Default: +5" },
+      { key: "daily_streak_max",     label: "Max Streak Bonus Days",  default: 30,   min: 1,    max: 365,  step: 1,    unit: "days",     desc: "Streak bonus caps at this many days. Default: 30" },
+      { key: "daily_cooldown_hours", label: "Cooldown",               default: 22,   min: 1,    max: 48,   step: 1,    unit: "h",        desc: "Hours between daily claims. Default: 22h" },
+    ],
+  },
+  {
+    title: "Work",
+    fields: [
+      { type: "range",  label: "Work Reward",             minKey: "work_min",          maxKey: "work_max",         minDefault: 10, maxDefault: 25,  min: 1,   max: 500,  step: 1,    unit: "✨",      desc: "Stardust range per work use. Default: 10–25" },
+      { key: "work_cooldown_hours",  label: "Cooldown",               default: 4,    min: 1,    max: 24,   step: 1,    unit: "h",        desc: "Hours between work uses. Default: 4h" },
+    ],
+  },
+  {
+    title: "Rob",
+    fields: [
+      { key: "rob_success_chance",     label: "Success Chance",         default: 0.40, min: 0.05, max: 0.90, step: 0.05, unit: "(0–1)",    desc: "Probability of a successful rob. 0.40 = 40%. Default: 0.40" },
+      { type: "range", label: "Steal Amount",              minKey: "rob_steal_min_pct", maxKey: "rob_steal_max_pct", minDefault: 0.10, maxDefault: 0.30, min: 0.01, max: 0.99, step: 0.01, unit: "× bal", desc: "Fraction of victim Stardust stolen on success. Default: 0.10–0.30" },
+      { key: "rob_fine_pct",           label: "Fine on Failure",        default: 0.15, min: 0.01, max: 0.50, step: 0.01, unit: "× bal",   desc: "Fraction of robber's Stardust lost on failure. Default: 0.15" },
+      { key: "rob_min_victim_balance", label: "Min Victim Balance",     default: 50,   min: 1,    max: 1000, step: 1,    unit: "✨",       desc: "Victim must have at least this much Stardust. Default: 50" },
     ],
   },
   {
@@ -569,6 +608,137 @@ async function deleteCustomGroup(groupId) {
     showToast("Group deleted.", "success");
   } catch {
     showToast("Failed to delete group.", "error");
+  }
+}
+
+// ── Welcome Tab ───────────────────────────────────────
+
+function renderWelcomeTab(settings) {
+  const container = document.getElementById("tab-welcome");
+  const wc = settings.welcome_config || {};
+
+  const enabledChecked  = wc.enabled   ? "checked" : "";
+  const embedChecked    = wc.use_embed ? "checked" : "";
+  const enabledOn       = wc.enabled   ? " is-on" : "";
+  const embedOn         = wc.use_embed ? " is-on" : "";
+  const embedHidden     = wc.use_embed ? "" : ' style="display:none"';
+  const channelVal      = escapeHtml(wc.channel_id  || "");
+  const messageVal      = escapeHtml(wc.message     || "Welcome to **{server}**, {user}! 🎉");
+  const embedTitleVal   = escapeHtml(wc.embed_title || "");
+  const embedColorVal   = escapeHtml(wc.embed_color || "#5865F2");
+
+  container.innerHTML = `
+    <div class="profile-section">
+      <h3 class="section-title"><span class="section-pip"></span>Welcome Messages</h3>
+      <p class="tab-desc">Send a message when new members join your server. Available placeholders: <code>{user}</code> (mention), <code>{username}</code> (display name), <code>{server}</code>, <code>{count}</code> (member count).</p>
+
+      <div class="economy-fields">
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Enable Welcome Messages</label></div>
+          <label class="toggle-card${enabledOn}" id="wc-enabled-toggle">
+            <span class="tc-icon">👋</span>
+            <span class="tc-label">Welcome messages</span>
+            <span class="tc-switch"><span class="tc-knob"></span></span>
+            <input type="checkbox" ${enabledChecked} id="wc-enabled" hidden>
+          </label>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Channel ID</label></div>
+          <p class="ef-desc">Right-click a channel in Discord → Copy ID. Enable Developer Mode in Discord settings if you don't see this option.</p>
+          <div class="ef-input-row">
+            <input type="text" class="number-input" id="wc-channel-id" value="${channelVal}" placeholder="e.g. 1234567890123456789">
+          </div>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header">
+            <label class="ef-label">Welcome Message</label>
+            <button class="btn-reset" id="wc-msg-reset">Reset</button>
+          </div>
+          <p class="ef-desc">Placeholders: {user}, {username}, {server}, {count}</p>
+          <div class="ef-input-row">
+            <textarea class="number-input" id="wc-message" style="flex:1;min-height:60px;resize:vertical;">${messageVal}</textarea>
+          </div>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Use Embed</label></div>
+          <p class="ef-desc">Send as a formatted embed instead of plain text.</p>
+          <label class="toggle-card${embedOn}" id="wc-embed-toggle">
+            <span class="tc-icon">🎨</span>
+            <span class="tc-label">Embed style</span>
+            <span class="tc-switch"><span class="tc-knob"></span></span>
+            <input type="checkbox" ${embedChecked} id="wc-use-embed" hidden>
+          </label>
+        </div>
+
+        <div class="economy-field" id="wc-embed-fields"${embedHidden}>
+          <div class="ef-header"><label class="ef-label">Embed Title <span class="hint">(optional)</span></label></div>
+          <p class="ef-desc">Placeholders: {username}, {server}</p>
+          <div class="ef-input-row" style="margin-bottom:12px">
+            <input type="text" class="number-input" id="wc-embed-title" value="${embedTitleVal}" placeholder="Welcome to {server}!">
+          </div>
+          <div class="ef-header"><label class="ef-label">Embed Colour</label></div>
+          <div class="ef-input-row">
+            <input type="color" id="wc-embed-color" value="${embedColorVal}" style="width:48px;height:36px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:transparent;">
+          </div>
+        </div>
+
+      </div>
+
+      <button id="wc-save-btn" class="btn-save profile-save" style="margin-top:24px">Save Welcome Settings</button>
+    </div>
+  `;
+
+  const enabledToggle = document.getElementById("wc-enabled-toggle");
+  const enabledInput  = document.getElementById("wc-enabled");
+  enabledToggle.addEventListener("click", () => {
+    const on = !enabledInput.checked;
+    enabledInput.checked = on;
+    enabledToggle.classList.toggle("is-on", on);
+  });
+
+  const embedToggle = document.getElementById("wc-embed-toggle");
+  const embedInput  = document.getElementById("wc-use-embed");
+  const embedFields = document.getElementById("wc-embed-fields");
+  embedToggle.addEventListener("click", () => {
+    const on = !embedInput.checked;
+    embedInput.checked = on;
+    embedToggle.classList.toggle("is-on", on);
+    embedFields.style.display = on ? "" : "none";
+  });
+
+  document.getElementById("wc-msg-reset").addEventListener("click", () => {
+    document.getElementById("wc-message").value = "Welcome to **{server}**, {user}! 🎉";
+  });
+
+  document.getElementById("wc-save-btn").addEventListener("click", saveWelcomeSettings);
+}
+
+async function saveWelcomeSettings() {
+  const btn = document.getElementById("wc-save-btn");
+  btn.disabled = true;
+  btn.textContent = "Saving…";
+
+  const welcome_config = {
+    enabled:     document.getElementById("wc-enabled").checked,
+    channel_id:  document.getElementById("wc-channel-id").value.trim() || null,
+    message:     document.getElementById("wc-message").value,
+    use_embed:   document.getElementById("wc-use-embed").checked,
+    embed_title: document.getElementById("wc-embed-title").value.trim(),
+    embed_color: document.getElementById("wc-embed-color").value,
+  };
+
+  try {
+    await api.saveSettings(currentGuildId, { welcome_config });
+    showToast("Welcome settings saved!", "success");
+  } catch (err) {
+    showToast("Failed to save.", "error");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Save Welcome Settings";
   }
 }
 
@@ -864,6 +1034,61 @@ const EVENT_TEXT_SECTIONS = [
       { key: "rt_spinning", label: "Spinning Text", desc: "Shown while the wheel animates. No placeholders." },
       { key: "rt_win",      label: "Win Message",   desc: "Placeholders: {winnings}, {multiplier}" },
       { key: "rt_lose",     label: "Lose Message",  desc: "Placeholders: {bet}" },
+    ],
+  },
+  {
+    title: "Dice",
+    fields: [
+      { key: "dice_title", label: "Embed Title",  desc: "Title of the dice roll embed." },
+      { key: "dice_win",   label: "Win Message",  desc: "Placeholders: {winnings}, {multiplier}" },
+      { key: "dice_lose",  label: "Lose Message", desc: "Placeholders: {bet}" },
+    ],
+  },
+  {
+    title: "Crash",
+    fields: [
+      { key: "crash_title",      label: "Embed Title",    desc: "Title used throughout the crash game." },
+      { key: "crash_cashed_out", label: "Cashed Out",     desc: "Placeholders: {mult}, {payout}" },
+      { key: "crash_crashed",    label: "Crashed (Lose)", desc: "Placeholders: {mult}, {bet}" },
+    ],
+  },
+  {
+    title: "Rock Paper Scissors",
+    fields: [
+      { key: "rps_title", label: "Embed Title",  desc: "Title of the RPS embed." },
+      { key: "rps_win",   label: "Win Message",  desc: "Placeholders: {winnings}, {multiplier}" },
+      { key: "rps_lose",  label: "Lose Message", desc: "Placeholders: {bet}" },
+      { key: "rps_tie",   label: "Tie Message",  desc: "No placeholders." },
+    ],
+  },
+  {
+    title: "Daily Claim",
+    fields: [
+      { key: "daily_claim",       label: "Claim Message",        desc: "Placeholders: {reward}, {streak}" },
+      { key: "daily_cooldown",    label: "Cooldown Message",     desc: "Placeholders: {hours}, {mins}" },
+      { key: "daily_streak_lost", label: "Streak Reset Message", desc: "Sent when streak resets. Placeholders: {reward}, {streak}" },
+    ],
+  },
+  {
+    title: "Work",
+    fields: [
+      { key: "work_cooldown", label: "Cooldown Message", desc: "Placeholders: {hours}, {mins}" },
+    ],
+  },
+  {
+    title: "Rob",
+    fields: [
+      { key: "rob_success", label: "Success",         desc: "Placeholders: {amount}, {victim}" },
+      { key: "rob_caught",  label: "Caught (Fail)",   desc: "Placeholders: {victim}, {fine}" },
+      { key: "rob_poor",    label: "Victim Too Poor", desc: "Placeholders: {victim}" },
+    ],
+  },
+  {
+    title: "Reputation",
+    fields: [
+      { key: "rep_given",    label: "Rep Given",      desc: "Placeholders: {user}, {total}" },
+      { key: "rep_cooldown", label: "Cooldown",       desc: "Placeholders: {hours}, {mins}" },
+      { key: "rep_self",     label: "Self-Rep Error", desc: "No placeholders." },
     ],
   },
 ];
