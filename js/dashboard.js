@@ -134,7 +134,6 @@ async function loadSettings(guildId) {
     renderResponderTab(currentSettings);
     renderEventTextTab(currentSettings);
     renderWelcomeTab(currentSettings);
-    renderBiasTab(currentSettings);
     renderProfileTab(currentSettings);
   } catch (err) {
     console.error("Failed to load settings:", err);
@@ -184,19 +183,6 @@ async function saveSettings() {
       chat_toggles[card.dataset.key] = card.classList.contains("is-on");
     });
 
-    const bias_settings = {};
-    const biasEnabledInput = document.getElementById("bias-enabled-input");
-    if (biasEnabledInput) {
-      bias_settings.enabled = biasEnabledInput.checked;
-    }
-    document.querySelectorAll(".bias-text-input[data-bias-key]").forEach((input) => {
-      bias_settings[input.dataset.biasKey] = input.value.trim();
-    });
-    document.querySelectorAll(".bias-num-input[data-bias-key]").forEach((input) => {
-      const raw = parseFloat(input.value);
-      bias_settings[input.dataset.biasKey] = input.dataset.biasType === "pct" ? raw / 100 : raw;
-    });
-
     await api.saveSettings(currentGuildId, {
       game_toggles,
       event_toggles,
@@ -204,7 +190,6 @@ async function saveSettings() {
       payout_overrides,
       chat_toggles,
       text_overrides,
-      bias_settings,
     });
 
     isDirty = false;
@@ -864,164 +849,6 @@ async function saveProfile() {
     btn.disabled = false;
     btn.textContent = "Update Profile";
   }
-}
-
-// ── Gambling Bias Tab ─────────────────────────────────
-
-const BIAS_SECTIONS = [
-  {
-    title: "Status",
-    fields: [
-      { key: "user_id", label: "Bias User ID", desc: "Discord user ID that receives biased odds. Leave blank or 0 to disable.", type: "text", default: "838827787174543380" },
-    ],
-  },
-  {
-    title: "Coinflip",
-    fields: [
-      { key: "cf_win_chance", label: "Win Chance", desc: "Probability the bias user wins each flip.", type: "pct", default: 0.95, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Slots",
-    fields: [
-      { key: "slots_jackpot_t", label: "Jackpot Chance", desc: "Probability of landing the jackpot (💎💎💎).", type: "pct", default: 0.05, min: 0, max: 0.5, step: 0.01 },
-      { key: "slots_win_t", label: "Total Win Chance", desc: "Overall probability of any winning spin (includes all tiers).", type: "pct", default: 0.70, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Blackjack",
-    fields: [
-      { key: "bj_dealer_stop", label: "Boss — Dealer Stop Chance", desc: "Chance the dealer stops drawing early (at 15+) when the bias user plays.", type: "pct", default: 0.50, min: 0, max: 1, step: 0.01 },
-      { key: "bj_house_edge", label: "House Edge (all users)", desc: "Chance the dealer draws a perfect counter-card against normal users.", type: "pct", default: 0.20, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Hi-Lo",
-    fields: [
-      { key: "hilo_house_edge", label: "House Edge (all users)", desc: "Chance a bad card is silently forced against normal users each round.", type: "pct", default: 0.20, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Warp (Hyperwarp)",
-    fields: [
-      { key: "warp_survival", label: "Boss — Survival Chance", desc: "Per-jump survival probability for the bias user (normal users: 53.3%).", type: "pct", default: 0.95, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Roulette",
-    fields: [
-      { key: "rt_rig_chance", label: "Near-Target Rig Chance", desc: "When bias user bets a number, probability the result lands within ±2 of their pick.", type: "pct", default: 0.40, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Dice",
-    fields: [
-      { key: "dice_exact", label: "Exact Pick Chance", desc: "Probability the die rolls exactly the bias user's chosen number.", type: "pct", default: 0.60, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-  {
-    title: "Crash",
-    fields: [
-      { key: "crash_min", label: "Min Crash Point", desc: "Minimum multiplier the game crashes at for the bias user.", type: "num", default: 3.0, min: 1.0, max: 50.0, step: 0.1, unit: "×" },
-      { key: "crash_max", label: "Max Crash Point", desc: "Maximum multiplier the game crashes at for the bias user.", type: "num", default: 20.0, min: 1.0, max: 100.0, step: 0.1, unit: "×" },
-    ],
-  },
-  {
-    title: "Rock Paper Scissors",
-    fields: [
-      { key: "rps_win_chance", label: "Win Chance", desc: "Probability Flicker picks the losing move against the bias user.", type: "pct", default: 0.90, min: 0, max: 1, step: 0.01 },
-    ],
-  },
-];
-
-function renderBiasTab(settings) {
-  const bs = settings.bias_settings || {};
-  const container = document.getElementById("tab-bias");
-  container.innerHTML = "";
-
-  // Enabled toggle
-  const enabledOn = bs.enabled !== false;
-  const statusSection = document.createElement("div");
-  statusSection.className = "bias-status-section";
-  statusSection.innerHTML = `
-    <h3 class="section-title"><span class="section-pip"></span>Bias Control</h3>
-    <p class="tab-desc">Configure a VIP user who receives rigged odds across all gambling games. Disable to give everyone fair odds.</p>
-    <label class="toggle-card${enabledOn ? " is-on" : ""}" id="bias-enable-label">
-      <span class="tc-icon">🎲</span>
-      <span class="tc-label">Gambling Bias Enabled</span>
-      <span class="tc-switch"><span class="tc-knob"></span></span>
-      <input type="checkbox" ${enabledOn ? "checked" : ""} id="bias-enabled-input" hidden>
-    </label>
-  `;
-  statusSection.querySelector("input").addEventListener("change", (e) => {
-    statusSection.querySelector("label").classList.toggle("is-on", e.target.checked);
-    markDirty();
-  });
-  container.appendChild(statusSection);
-
-  const fields = document.createElement("div");
-  fields.className = "economy-fields";
-  container.appendChild(fields);
-
-  BIAS_SECTIONS.forEach((section) => {
-    const heading = document.createElement("h3");
-    heading.className = "section-title";
-    heading.innerHTML = `<span class="section-pip"></span>${section.title}`;
-    fields.appendChild(heading);
-
-    section.fields.forEach((field) => {
-      const div = document.createElement("div");
-      div.className = "economy-field";
-
-      if (field.type === "text") {
-        const value = bs[field.key] ?? field.default;
-        div.innerHTML = `
-          <div class="ef-header">
-            <label class="ef-label">${field.label}</label>
-            <button class="btn-reset" title="Reset to default">Reset to ${field.default}</button>
-          </div>
-          <p class="ef-desc">${field.desc}</p>
-          <div class="ef-input-row">
-            <input type="text" class="bias-text-input" data-bias-key="${field.key}"
-              value="${value}" placeholder="Discord User ID" style="flex:1;max-width:260px;">
-          </div>
-        `;
-        div.querySelector("input").addEventListener("input", markDirty);
-        div.querySelector(".btn-reset").addEventListener("click", () => {
-          div.querySelector("input").value = field.default;
-          markDirty();
-        });
-      } else {
-        const rawVal = bs[field.key] ?? field.default;
-        const displayVal = field.type === "pct" ? Math.round(rawVal * 100) : rawVal;
-        const displayDefault = field.type === "pct" ? Math.round(field.default * 100) : field.default;
-        const unit = field.type === "pct" ? "%" : (field.unit || "");
-        const minVal = field.type === "pct" ? 0 : field.min;
-        const maxVal = field.type === "pct" ? 100 : field.max;
-        const stepVal = field.type === "pct" ? 1 : field.step;
-
-        div.innerHTML = `
-          <div class="ef-header">
-            <label class="ef-label">${field.label}</label>
-            <button class="btn-reset" title="Reset to default">Reset to ${displayDefault}${unit}</button>
-          </div>
-          <p class="ef-desc">${field.desc}</p>
-          <div class="ef-input-row">
-            <input type="number" class="bias-num-input" data-bias-key="${field.key}" data-bias-type="${field.type}"
-              value="${displayVal}" min="${minVal}" max="${maxVal}" step="${stepVal}">
-            <span class="ef-unit">${unit}</span>
-          </div>
-        `;
-        div.querySelector("input").addEventListener("input", markDirty);
-        div.querySelector(".btn-reset").addEventListener("click", () => {
-          div.querySelector("input").value = displayDefault;
-          markDirty();
-        });
-      }
-
-      fields.appendChild(div);
-    });
-  });
 }
 
 // ── Helpers ───────────────────────────────────────────

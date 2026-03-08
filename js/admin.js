@@ -155,11 +155,13 @@ function buildGuildDetail(guild) {
       <button class="detail-tab-btn active" data-dtab="overview">Overview</button>
       <button class="detail-tab-btn" data-dtab="economy">Economy</button>
       <button class="detail-tab-btn" data-dtab="channels">Channels</button>
+      <button class="detail-tab-btn" data-dtab="bias">🎲 Bias</button>
       <button class="detail-tab-btn" data-dtab="actions">Actions</button>
     </div>
     <div id="detail-panel-overview" class="detail-panel active"></div>
     <div id="detail-panel-economy" class="detail-panel"></div>
     <div id="detail-panel-channels" class="detail-panel"></div>
+    <div id="detail-panel-bias" class="detail-panel"></div>
     <div id="detail-panel-actions" class="detail-panel"></div>`;
 }
 
@@ -187,6 +189,7 @@ async function loadDetailTab(tab, guild) {
   if (tab === "overview") await renderOverviewPanel(panel, guild);
   else if (tab === "economy") await renderEconomyPanel(panel, guild);
   else if (tab === "channels") await renderChannelsPanel(panel, guild);
+  else if (tab === "bias") await renderBiasPanel(panel, guild);
   else if (tab === "actions") renderActionsPanel(panel, guild);
 }
 
@@ -430,6 +433,146 @@ async function doRemoveChannel(guildId, channelId, btn) {
     await adminReq(`/admin/guild/${guildId}/channels/${channelId}`, { method: "DELETE" });
     btn.closest(".channel-pill").remove();
   } catch (err) { alert("Failed: " + err.message); }
+}
+
+// ── Bias tab ──────────────────────────────────────────
+const BIAS_SECTIONS = [
+  { title: "Coinflip", fields: [
+    { key: "cf_win_chance", label: "Win Chance", desc: "Probability the bias user wins each flip.", type: "pct", default: 0.95 },
+  ]},
+  { title: "Slots", fields: [
+    { key: "slots_jackpot_t", label: "Jackpot Chance", desc: "Probability of landing the jackpot (💎💎💎).", type: "pct", default: 0.05 },
+    { key: "slots_win_t", label: "Total Win Chance", desc: "Overall win probability (includes all tiers). Normal: 22%.", type: "pct", default: 0.70 },
+  ]},
+  { title: "Blackjack", fields: [
+    { key: "bj_dealer_stop", label: "Boss — Dealer Stop Chance", desc: "Chance the dealer stops drawing early at 15+ when the bias user plays.", type: "pct", default: 0.50 },
+    { key: "bj_house_edge", label: "House Edge (all users)", desc: "Chance the dealer draws a perfect counter-card against normal users.", type: "pct", default: 0.20 },
+  ]},
+  { title: "Hi-Lo", fields: [
+    { key: "hilo_house_edge", label: "House Edge (all users)", desc: "Chance a bad card is silently forced against normal users per round.", type: "pct", default: 0.20 },
+  ]},
+  { title: "Warp (Hyperwarp)", fields: [
+    { key: "warp_survival", label: "Boss — Survival Chance", desc: "Per-jump survival probability for the bias user. Normal: 53.3%.", type: "pct", default: 0.95 },
+  ]},
+  { title: "Roulette", fields: [
+    { key: "rt_rig_chance", label: "Near-Target Rig Chance", desc: "When bias user bets a number, probability the result lands within ±2 of their pick.", type: "pct", default: 0.40 },
+  ]},
+  { title: "Dice", fields: [
+    { key: "dice_exact", label: "Exact Pick Chance", desc: "Probability the die rolls exactly the bias user's chosen number.", type: "pct", default: 0.60 },
+  ]},
+  { title: "Crash", fields: [
+    { key: "crash_min", label: "Min Crash Point", desc: "Minimum crash multiplier for the bias user.", type: "num", default: 3.0, unit: "×", min: 1.0, max: 50.0, step: 0.1 },
+    { key: "crash_max", label: "Max Crash Point", desc: "Maximum crash multiplier for the bias user.", type: "num", default: 20.0, unit: "×", min: 1.0, max: 100.0, step: 0.1 },
+  ]},
+  { title: "Rock Paper Scissors", fields: [
+    { key: "rps_win_chance", label: "Win Chance", desc: "Probability Flicker picks the losing move against the bias user.", type: "pct", default: 0.90 },
+  ]},
+];
+
+async function renderBiasPanel(panel, guild) {
+  panel.innerHTML = `<div style="color:var(--text-2);font-size:0.83rem;">Loading…</div>`;
+  const data = await adminReq(`/admin/guild/${guild.id}/bias`);
+  if (!data) return;
+  const bs = data.bias_settings || {};
+
+  const enabledOn = bs.enabled !== false;
+  const uid = bs.user_id ?? "838827787174543380";
+
+  panel.innerHTML = `
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-header"><span class="card-title">🎲 Gambling Bias</span></div>
+      <div class="card-body">
+        <p style="font-size:0.82rem;color:var(--text-2);margin-bottom:14px;">
+          Configure a VIP user who receives rigged odds across all gambling games.
+        </p>
+
+        <div class="form-row" style="align-items:center;gap:16px;margin-bottom:16px;">
+          <label class="toggle-card${enabledOn ? " is-on" : ""}" id="bias-enable-label" style="width:auto;min-width:220px;">
+            <span class="tc-icon">🎲</span>
+            <span class="tc-label">Bias Enabled</span>
+            <span class="tc-switch"><span class="tc-knob"></span></span>
+            <input type="checkbox" ${enabledOn ? "checked" : ""} id="bias-enabled-input" hidden>
+          </label>
+          <div class="form-group" style="flex:1;max-width:320px;">
+            <label>Bias User ID</label>
+            <input type="text" id="bias-user-id" class="form-input" value="${esc(String(uid))}" placeholder="Discord User ID">
+          </div>
+        </div>
+
+        <div id="bias-game-fields"></div>
+
+        <button class="btn-primary" style="margin-top:16px;" onclick="saveBiasSettings('${guild.id}')">Save Bias Settings</button>
+        <span id="bias-flash" style="margin-left:10px;font-size:0.8rem;color:var(--success);display:none;">✓ Saved</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("bias-enable-label").querySelector("input").addEventListener("change", e => {
+    document.getElementById("bias-enable-label").classList.toggle("is-on", e.target.checked);
+  });
+
+  const fieldsContainer = document.getElementById("bias-game-fields");
+  BIAS_SECTIONS.forEach(section => {
+    const heading = document.createElement("div");
+    heading.style.cssText = "font-size:0.78rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-2);margin:14px 0 6px;";
+    heading.textContent = section.title;
+    fieldsContainer.appendChild(heading);
+
+    const row = document.createElement("div");
+    row.className = "form-row";
+    row.style.flexWrap = "wrap";
+
+    section.fields.forEach(field => {
+      const rawVal = bs[field.key] ?? field.default;
+      const displayVal = field.type === "pct" ? Math.round(rawVal * 100) : rawVal;
+      const unit = field.type === "pct" ? "%" : (field.unit || "");
+      const minVal = field.type === "pct" ? 0 : field.min ?? 0;
+      const maxVal = field.type === "pct" ? 100 : field.max ?? 100;
+      const stepVal = field.type === "pct" ? 1 : (field.step ?? 0.1);
+
+      const grp = document.createElement("div");
+      grp.className = "form-group";
+      grp.style.minWidth = "180px";
+      grp.innerHTML = `
+        <label title="${esc(field.desc)}">${esc(field.label)} ${unit ? `<span style="color:var(--text-2)">(${unit})</span>` : ""}</label>
+        <input type="number" class="form-input bias-field" data-bias-key="${field.key}" data-bias-type="${field.type}"
+          value="${displayVal}" min="${minVal}" max="${maxVal}" step="${stepVal}" style="width:110px;">
+      `;
+      row.appendChild(grp);
+    });
+    fieldsContainer.appendChild(row);
+  });
+}
+
+async function saveBiasSettings(guildId) {
+  const btn = event.target;
+  btn.disabled = true;
+
+  const bias_settings = {};
+  bias_settings.enabled = document.getElementById("bias-enabled-input").checked;
+  bias_settings.user_id = document.getElementById("bias-user-id").value.trim();
+
+  document.querySelectorAll(".bias-field[data-bias-key]").forEach(input => {
+    const raw = parseFloat(input.value);
+    bias_settings[input.dataset.biasKey] = input.dataset.biasType === "pct" ? raw / 100 : raw;
+  });
+
+  try {
+    await adminReq(`/admin/guild/${guildId}/bias`, {
+      method: "POST",
+      body: JSON.stringify({ bias_settings }),
+    });
+    const flash = document.getElementById("bias-flash");
+    flash.style.display = "inline";
+    setTimeout(() => { flash.style.display = "none"; }, 2500);
+    // Bust the panel cache so next visit re-fetches
+    const panel = document.getElementById("detail-panel-bias");
+    if (panel) delete panel.dataset.loaded;
+  } catch (err) {
+    alert("Failed to save: " + (err.message || err));
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 // ── Actions tab ───────────────────────────────────────
