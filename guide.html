@@ -809,7 +809,7 @@
           <div class="guide-chips-row">
             <span class="guide-chip">&#10024; Stardust — event currency</span>
             <span class="guide-chip">&#127922; Chips — gambling currency</span>
-            <span class="guide-chip">&#128640; 15 s cooldown on gambling</span>
+            <span class="guide-chip">&#128640; 10–20 s cooldown on gambling</span>
             <span class="guide-chip">&#9203; Events fire automatically</span>
             <span class="guide-chip">&#128197; Daily rewards &amp; streaks</span>
             <span class="guide-chip">&#10084;&#65039; Reputation system</span>
@@ -864,7 +864,7 @@
               <div class="currency-block">
                 <div class="currency-block-icon">&#10024;</div>
                 <div class="currency-block-name">Stardust</div>
-                <div class="currency-block-desc">Earned from chat events &amp; petting Flicker.<br>Used in the shop &amp; sent to friends.</div>
+                <div class="currency-block-desc">Earned from events, daily rewards &amp; petting Flicker.<br>Used in the shop &amp; sent to friends.</div>
               </div>
             </div>
             <div>
@@ -925,7 +925,7 @@
                 </div>
                 <div class="cmd-notes">
                   <div class="cmd-note"><span class="note-dot"></span>No arguments needed — it always shows your own wallet.</div>
-                  <div class="cmd-note"><span class="note-dot"></span>You start at 0 in both currencies. Earn Stardust by participating in events or using <code>!pet</code>.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>You start at 0 in both currencies. Earn Stardust by participating in events, <code>!daily</code>, or <code>!pet</code>.</div>
                 </div>
               </div>
             </div>
@@ -1296,6 +1296,7 @@
               <div class="cmd-info">
                 <div class="cmd-name-row">
                   <span class="cmd-name">!giveaway</span>
+                  <span class="cmd-aliases">also: !gaw</span>
                   <span class="cmd-badge badge-admin">Admin</span>
                 </div>
                 <div class="cmd-desc">Start a timed giveaway. Anyone can enter by clicking the button — when time runs out, winners are picked at random.</div>
@@ -1457,6 +1458,10 @@
           <div class="info-box blue">
             <strong>Edge cases to know:</strong> In a Stardust Drop, only the first 5 people who type "catch" get a reward. In Trivia, only the <em>first</em> response is checked — even if it's wrong. In Fast Type, copy-paste on mobile is intentionally blocked, so you'll need to type it manually.
           </div>
+
+          <div class="info-box yellow">
+            <strong>Timing:</strong> Events have a 5–10% chance of triggering on any message in a tracked channel, with a 3-minute cooldown between events. All reward ranges, timeouts, and individual event types can be toggled and configured by admins in the <a href="/dashboard" style="color: var(--warn);">Dashboard</a>.
+          </div>
         </section>
 
         <!-- ═══════════════════════════════════════════════
@@ -1468,7 +1473,7 @@
             <span class="guide-section-title">GAMBLING</span>
           </div>
           <p class="guide-section-desc">
-            All gambling uses <strong>Chips</strong>, not Stardust. Every game has a 15-second cooldown per user. You can type <code>all</code> instead of an amount to bet everything you have.
+            All gambling uses <strong>Chips</strong>, not Stardust. Each game has a cooldown per user (10–20 seconds depending on the game). You can type <code>all</code> instead of an amount to bet everything you have.
           </p>
 
           <div class="info-box yellow">
@@ -1497,7 +1502,7 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Win payout</div>
-                    <div class="cic-value">2× your bet</div>
+                    <div class="cic-value">2× your bet (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Cooldown</div>
@@ -1614,11 +1619,11 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Win payout</div>
-                    <div class="cic-value">2× your bet</div>
+                    <div class="cic-value">2× your bet (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Natural 21</div>
-                    <div class="cic-value">2.5× your bet (instant win)</div>
+                    <div class="cic-value">2.5× your bet (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Push (tie)</div>
@@ -1663,7 +1668,7 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Multiplier per guess</div>
-                    <div class="cic-value">+0.2× per correct answer</div>
+                    <div class="cic-value">+0.2× per correct answer (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Starting multiplier</div>
@@ -1714,11 +1719,11 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Color / Odd / Even</div>
-                    <div class="cic-value">~1.9× payout</div>
+                    <div class="cic-value">~1.9× payout (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Straight number</div>
-                    <div class="cic-value">35× payout</div>
+                    <div class="cic-value">35× payout (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Zero (0)</div>
@@ -1771,7 +1776,7 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Multiplier per jump</div>
-                    <div class="cic-value">1.5× per successful jump</div>
+                    <div class="cic-value">1.5× per successful jump (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Survival rate per jump</div>
@@ -1815,6 +1820,7 @@
               <div class="cmd-info">
                 <div class="cmd-name-row">
                   <span class="cmd-name">!dice</span>
+                  <span class="cmd-aliases">also: !roll</span>
                 </div>
                 <div class="cmd-desc">Roll a die and guess the outcome. Pick an exact face (1–6) for a big payout, or bet high/low for near-even odds.</div>
               </div>
@@ -1829,7 +1835,7 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Exact number win</div>
-                    <div class="cic-value">5× your bet</div>
+                    <div class="cic-value">5× your bet (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">High (4–6) / Low (1–3)</div>
@@ -1837,7 +1843,7 @@
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Cooldown</div>
-                    <div class="cic-value">15 seconds</div>
+                    <div class="cic-value">10 seconds</div>
                   </div>
                 </div>
                 <div class="cmd-examples">
@@ -1889,11 +1895,15 @@
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">House edge</div>
-                    <div class="cic-value">~5% (configurable)</div>
+                    <div class="cic-value">~4% (configurable)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Cooldown</div>
+                    <div class="cic-value">20 seconds</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Button timeout</div>
-                    <div class="cic-value">30s — auto cashes out at current multiplier</div>
+                    <div class="cic-value">35s — auto cashes out at current multiplier</div>
                   </div>
                 </div>
                 <div class="cmd-examples">
@@ -1940,7 +1950,7 @@
                 <div class="cmd-info-grid">
                   <div class="cmd-info-cell">
                     <div class="cic-label">Win payout</div>
-                    <div class="cic-value">1.9× your bet</div>
+                    <div class="cic-value">1.9× your bet (configurable)</div>
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Tie</div>
@@ -1952,7 +1962,7 @@
                   </div>
                   <div class="cmd-info-cell">
                     <div class="cic-label">Cooldown</div>
-                    <div class="cic-value">15 seconds</div>
+                    <div class="cic-value">10 seconds</div>
                   </div>
                 </div>
                 <div class="cmd-examples">
@@ -2349,6 +2359,41 @@
                 <div class="cmd-notes">
                   <div class="cmd-note note-warn"><span class="note-dot"></span>This action cannot be undone. The counters are permanently zeroed out.</div>
                   <div class="cmd-note"><span class="note-dot"></span>User Stardust and Chip balances are never affected.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- !verify -->
+          <div class="cmd-card" onclick="toggleCard(this)">
+            <div class="cmd-card-header">
+              <span class="cmd-icon">&#9989;</span>
+              <div class="cmd-info">
+                <div class="cmd-name-row">
+                  <span class="cmd-name">!verify</span>
+                  <span class="cmd-badge badge-admin">Admin</span>
+                </div>
+                <div class="cmd-desc">Set up a verification gate in a channel. Sends an embed with a button — new members must click it and pass a quiz to get a role.</div>
+              </div>
+              <span class="cmd-chevron">&#9654;</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-body-inner">
+                <div class="cmd-usage-block">
+                  <div class="cmd-usage-label">Usage</div>
+                  <div class="cmd-usage-line">!verify <span class="cmd-usage-param">#channel @role</span></div>
+                </div>
+                <div class="cmd-examples">
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!verify #welcome @Verified</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">Posts a verification embed in #welcome. Members who pass get the @Verified role.</span>
+                  </div>
+                </div>
+                <div class="cmd-notes">
+                  <div class="cmd-note"><span class="note-dot"></span>Clicking the button asks the user if they've read the rules. Answering "No" triggers a quiz they must pass.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>The verification embed persists across bot restarts — it does not need to be re-posted.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>The role specified is granted automatically once the user passes verification.</div>
                 </div>
               </div>
             </div>
