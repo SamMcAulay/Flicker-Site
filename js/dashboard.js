@@ -297,7 +297,7 @@ const ECONOMY_SECTIONS = [
       { key: "warp_multiplier_step",         label: "Warp — Multiplier Per Jump", default: 1.5,  min: 1.1, max: 5.0,  step: 0.1,  unit: "×",         desc: "Multiplier growth per warp jump. Default: 1.5×" },
       { key: "dice_win_multiplier",          label: "Dice — Straight Number Win", default: 5.0,  min: 2.0, max: 20.0, step: 0.5,  unit: "×",         desc: "Payout for guessing the exact roll. Default: 5.0×" },
       { key: "rps_win_multiplier",           label: "RPS — Win",                  default: 1.9,  min: 1.1, max: 5.0,  step: 0.1,  unit: "×",         desc: "Payout for winning Rock Paper Scissors. Default: 1.9×" },
-      { key: "crash_house_edge",             label: "Crash — House Edge",         default: 0.05, min: 0.01, max: 0.20, step: 0.01, unit: "(0–1)",     desc: "Probability of an early crash. 0.05 = 5% house edge. Default: 0.05" },
+      { key: "crash_house_edge",             label: "Crash — House Edge",         default: 0.04, min: 0.01, max: 0.20, step: 0.01, unit: "(0–1)",     desc: "Probability of an early crash. 0.04 = 4% house edge. Default: 0.04" },
     ],
   },
   {

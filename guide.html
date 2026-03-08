@@ -1298,7 +1298,7 @@
                   <span class="cmd-name">!giveaway</span>
                   <span class="cmd-badge badge-admin">Admin</span>
                 </div>
-                <div class="cmd-desc">Start a timed Stardust giveaway. Anyone can enter by clicking the button — when time runs out, a winner is picked at random.</div>
+                <div class="cmd-desc">Start a timed giveaway. Anyone can enter by clicking the button — when time runs out, winners are picked at random.</div>
               </div>
               <span class="cmd-chevron">&#9654;</span>
             </div>
@@ -1306,18 +1306,42 @@
               <div class="cmd-body-inner">
                 <div class="cmd-usage-block">
                   <div class="cmd-usage-label">Usage</div>
-                  <div class="cmd-usage-line">!giveaway <span class="cmd-usage-param">&lt;minutes&gt; &lt;prize_stardust&gt;</span></div>
+                  <div class="cmd-usage-line">!giveaway <span class="cmd-usage-param">&lt;duration&gt; [winners] [cost:stardust/chips] &lt;title&gt; [| description]</span></div>
+                </div>
+                <div class="cmd-info-grid">
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Duration</div>
+                    <div class="cic-value">e.g. 30m, 2h, 1d (max 7 days)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Winners</div>
+                    <div class="cic-value">1–20 (default 1)</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Entry cost</div>
+                    <div class="cic-value">Optional: 500:stardust or 1000:chips</div>
+                  </div>
+                  <div class="cmd-info-cell">
+                    <div class="cic-label">Title / description</div>
+                    <div class="cic-value">Use <code>|</code> to separate title from description</div>
+                  </div>
                 </div>
                 <div class="cmd-examples">
                   <div class="cmd-example">
-                    <span class="ex-cmd">!giveaway 10 500</span>
+                    <span class="ex-cmd">!giveaway 1h Nitro | A free month of Discord Nitro!</span>
                     <span class="ex-arrow">&#8594;</span>
-                    <span class="ex-result">Opens a 10-minute giveaway for 500 Stardust. One random entrant wins when time is up.</span>
+                    <span class="ex-result">Opens a 1-hour giveaway titled "Nitro" with a description, 1 winner.</span>
+                  </div>
+                  <div class="cmd-example">
+                    <span class="ex-cmd">!giveaway 30m 3 500:stardust Cool Prize</span>
+                    <span class="ex-arrow">&#8594;</span>
+                    <span class="ex-result">30-minute giveaway, 3 winners, costs 500 Stardust to enter.</span>
                   </div>
                 </div>
                 <div class="cmd-notes">
-                  <div class="cmd-note"><span class="note-dot"></span>Anyone can enter by clicking the "Enter Giveaway" button — the bot tracks entrants automatically.</div>
-                  <div class="cmd-note"><span class="note-dot"></span>When the timer expires Flicker announces the winner and awards the prize instantly.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Anyone can enter by clicking the "Enter" button — the bot tracks entrants automatically.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>When the timer expires Flicker announces the winners.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>If an entry cost is set, currency is deducted on entry (even if you don't win).</div>
                   <div class="cmd-note note-warn"><span class="note-dot"></span>If nobody enters, Flicker announces that the giveaway ended with no entries.</div>
                 </div>
               </div>
@@ -1332,7 +1356,7 @@
                 <div class="cmd-name-row">
                   <span class="cmd-name">!poll</span>
                 </div>
-                <div class="cmd-desc">Create a timed yes/no poll. Members vote with buttons — results are shown when time runs out.</div>
+                <div class="cmd-desc">Create a timed poll with multiple options. Members vote with reactions — results are shown when time runs out.</div>
               </div>
               <span class="cmd-chevron">&#9654;</span>
             </div>
@@ -1340,19 +1364,19 @@
               <div class="cmd-body-inner">
                 <div class="cmd-usage-block">
                   <div class="cmd-usage-label">Usage</div>
-                  <div class="cmd-usage-line">!poll <span class="cmd-usage-param">&lt;minutes&gt; &lt;question&gt;</span></div>
+                  <div class="cmd-usage-line">!poll <span class="cmd-usage-param">&lt;duration&gt; &lt;question&gt; | &lt;option1&gt; | &lt;option2&gt; [| option3...]</span></div>
                 </div>
                 <div class="cmd-examples">
                   <div class="cmd-example">
-                    <span class="ex-cmd">!poll 5 Should we add movie night?</span>
+                    <span class="ex-cmd">!poll 5m Movie night? | Yes | No | Maybe</span>
                     <span class="ex-arrow">&#8594;</span>
-                    <span class="ex-result">Opens a 5-minute poll. Members click Yes or No. Results shown after 5 minutes.</span>
+                    <span class="ex-result">Opens a 5-minute poll with 3 options. Members react to vote. Results shown after 5 minutes.</span>
                   </div>
                 </div>
                 <div class="cmd-notes">
-                  <div class="cmd-note"><span class="note-dot"></span>Each user can only vote once — clicking again has no effect.</div>
-                  <div class="cmd-note"><span class="note-dot"></span>The embed updates live as votes come in, showing a running tally.</div>
-                  <div class="cmd-note"><span class="note-dot"></span>When the timer ends, buttons are disabled and the final result is displayed.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Separate the question and options with <code>|</code>. Minimum 2 options, maximum 8.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>Duration supports <code>m</code> (minutes), <code>h</code> (hours), <code>d</code> (days). Max 7 days.</div>
+                  <div class="cmd-note"><span class="note-dot"></span>When the timer ends, results are shown with a bar chart and the reactions are cleared.</div>
                 </div>
               </div>
             </div>
