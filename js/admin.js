@@ -78,11 +78,12 @@ document.querySelectorAll(".admin-nav-btn").forEach(btn => {
 
 function renderView() {
   switch (currentView) {
-    case "guilds":   renderGuildsEmpty(); break;
-    case "health":   renderHealthPanel(); break;
-    case "lookup":   renderLookupPanel(); break;
-    case "blocks":   renderBlocksPanel(); break;
-    case "audit":    renderAuditPanel(); break;
+    case "guilds":     renderGuildsEmpty(); break;
+    case "health":     renderHealthPanel(); break;
+    case "lookup":     renderLookupPanel(); break;
+    case "blocks":     renderBlocksPanel(); break;
+    case "audit":      renderAuditPanel(); break;
+    case "giveaways":  renderGiveawaysPanel(); break;
   }
 }
 
@@ -819,6 +820,61 @@ async function renderAuditPanel() {
         <tbody>${rows}</tbody>
       </table>
     </div>`);
+}
+
+// ── Giveaways panel ───────────────────────────────────
+async function renderGiveawaysPanel() {
+  setMain("Active Giveaways", `<div style="color:var(--text-2);font-size:0.83rem;">Loading…</div>`);
+  const data = await adminReq("/admin/giveaways");
+  if (!data) return;
+
+  const now = Date.now() / 1000;
+  const rows = data.giveaways.length
+    ? data.giveaways.map(g => {
+        const prize = esc(g.prize_desc?.split("|")[0]?.trim() || "—");
+        const endsIn = g.end_time > now
+          ? fmtUptime(Math.round(g.end_time - now)) + " left"
+          : `<span style="color:var(--warn);">overdue</span>`;
+        const cost = g.entry_cost > 0
+          ? `${fmtNum(g.entry_cost)} ${esc(g.entry_currency || "Stardust")}`
+          : "Free";
+        return `<tr>
+          <td style="font-family:var(--font-mono);color:var(--text-2);font-size:0.75rem;">#${g.id}</td>
+          <td style="font-weight:500;">${prize}</td>
+          <td style="color:var(--text-2);font-size:0.8rem;">${esc(g.guild_name)}</td>
+          <td style="font-family:var(--font-mono);color:var(--accent-bright);">${fmtNum(g.entry_count)}</td>
+          <td style="color:var(--text-2);font-size:0.8rem;">${cost}</td>
+          <td style="color:var(--text-2);font-size:0.8rem;">${endsIn}</td>
+          <td><button class="btn-danger btn-xs" onclick="doForceEndGiveaway(${g.id}, '${prize}', this)">Force End</button></td>
+        </tr>`;
+      }).join("")
+    : '<tr class="empty-row"><td colspan="7">No active giveaways.</td></tr>';
+
+  setMain("Active Giveaways", `
+    <div class="data-table-wrap">
+      <table class="data-table">
+        <thead><tr><th>ID</th><th>Prize</th><th>Server</th><th>Entries</th><th>Cost</th><th>Ends</th><th></th></tr></thead>
+        <tbody id="giveaways-tbody">${rows}</tbody>
+      </table>
+    </div>`);
+}
+
+async function doForceEndGiveaway(id, prize, btn) {
+  if (!confirm(`Force-end giveaway #${id} (${prize})?\nThis will pick winners immediately.`)) return;
+  btn.disabled = true;
+  btn.textContent = "Ending…";
+  try {
+    await adminReq(`/admin/giveaways/${id}/end`, { method: "POST" });
+    btn.closest("tr").remove();
+    const tbody = document.getElementById("giveaways-tbody");
+    if (tbody && !tbody.querySelector("tr:not(.empty-row)")) {
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No active giveaways.</td></tr>';
+    }
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = "Force End";
+    alert("Failed: " + err.message);
+  }
 }
 
 // ── Helpers ───────────────────────────────────────────
