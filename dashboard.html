@@ -12,7 +12,7 @@
   <meta property="og:url" content="https://flicker-bot.com/dashboard">
   <meta property="og:image" content="https://flicker-bot.com/og-image.svg">
   <meta name="twitter:card" content="summary_large_image">
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=9">
 </head>
 <body>
 
@@ -67,6 +67,16 @@
         <button class="nav-tab" data-tab="welcome">
           <span class="nav-icon">👋</span>
           <span class="nav-label">Welcome</span>
+        </button>
+
+        <button class="nav-tab" data-tab="leveling">
+          <span class="nav-icon">⭐</span>
+          <span class="nav-label">Leveling</span>
+        </button>
+
+        <button class="nav-tab" data-tab="reaction-roles">
+          <span class="nav-icon">🎭</span>
+          <span class="nav-label">Reaction Roles</span>
         </button>
 
         <button class="nav-tab" data-tab="profile">
@@ -143,6 +153,16 @@
           <!-- rendered by dashboard.js -->
         </div>
 
+        <!-- ── Leveling Tab ──────────────────────── -->
+        <div id="tab-leveling" class="tab-panel">
+          <!-- rendered by dashboard.js -->
+        </div>
+
+        <!-- ── Reaction Roles Tab ──────────────────── -->
+        <div id="tab-reaction-roles" class="tab-panel">
+          <!-- rendered by dashboard.js -->
+        </div>
+
         <!-- ── Bot Profile Tab ──────────────────── -->
         <div id="tab-profile" class="tab-panel">
           <!-- rendered by dashboard.js -->
@@ -155,9 +175,9 @@
 
   <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
-  <script src="js/config.js?v=8"></script>
-  <script src="js/auth.js?v=8"></script>
-  <script src="js/api.js?v=8"></script>
-  <script src="js/dashboard.js?v=8"></script>
+  <script src="js/config.js?v=9"></script>
+  <script src="js/auth.js?v=9"></script>
+  <script src="js/api.js?v=9"></script>
+  <script src="js/dashboard.js?v=9"></script>
 </body>
 </html>

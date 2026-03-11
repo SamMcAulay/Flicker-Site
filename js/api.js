@@ -58,4 +58,41 @@ const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+
+  getChannels: (guildId) => apiRequest("/api/guild/" + guildId + "/channels"),
+  getRoles: (guildId) => apiRequest("/api/guild/" + guildId + "/roles"),
+
+  getLeveling: (guildId) => apiRequest("/api/leveling/" + guildId),
+  saveLeveling: (guildId, levelingConfig) =>
+    apiRequest("/api/leveling/" + guildId, {
+      method: "POST",
+      body: JSON.stringify({ leveling_config: levelingConfig }),
+    }),
+
+  getReactionRoles: (guildId) => apiRequest("/api/reaction-roles/" + guildId),
+  createReactionRolePanel: (guildId, data) =>
+    apiRequest("/api/reaction-roles/" + guildId, {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  deleteReactionRolePanel: (guildId, panelId) =>
+    apiRequest("/api/reaction-roles/" + guildId + "/" + panelId, {
+      method: "DELETE",
+    }),
+  addReactionRoleEntry: (guildId, panelId, data) =>
+    apiRequest("/api/reaction-roles/" + guildId + "/" + panelId + "/entries", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  removeReactionRoleEntry: (guildId, panelId, entryId) =>
+    apiRequest(
+      "/api/reaction-roles/" + guildId + "/" + panelId + "/entries/" + entryId,
+      { method: "DELETE" }
+    ),
+
+  saveWelcome: (guildId, welcomeConfig) =>
+    apiRequest("/api/settings/" + guildId, {
+      method: "POST",
+      body: JSON.stringify({ welcome_config: welcomeConfig }),
+    }),
 };

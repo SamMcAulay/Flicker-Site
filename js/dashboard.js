@@ -135,6 +135,8 @@ async function loadSettings(guildId) {
     renderEventTextTab(currentSettings);
     renderWelcomeTab(currentSettings);
     renderProfileTab(currentSettings);
+    renderLevelingTab(currentSettings);
+    renderReactionRolesTab();
   } catch (err) {
     console.error("Failed to load settings:", err);
     showToast("Failed to load settings.", "error");
@@ -609,20 +611,15 @@ function renderWelcomeTab(settings) {
   const container = document.getElementById("tab-welcome");
   const wc = settings.welcome_config || {};
 
-  const enabledChecked  = wc.enabled   ? "checked" : "";
-  const embedChecked    = wc.use_embed ? "checked" : "";
-  const enabledOn       = wc.enabled   ? " is-on" : "";
-  const embedOn         = wc.use_embed ? " is-on" : "";
-  const embedHidden     = wc.use_embed ? "" : ' style="display:none"';
-  const channelVal      = escapeHtml(wc.channel_id  || "");
-  const messageVal      = escapeHtml(wc.message     || "Welcome to **{server}**, {user}! 🎉");
-  const embedTitleVal   = escapeHtml(wc.embed_title || "");
-  const embedColorVal   = escapeHtml(wc.embed_color || "#5865F2");
+  const enabledOn  = wc.enabled        ? " is-on" : "";
+  const embedOn    = wc.use_embed !== false ? " is-on" : "";
+  const thumbOn    = wc.embed_thumbnail !== false ? " is-on" : "";
+  const embedHide  = wc.use_embed === false ? ' style="display:none"' : "";
 
   container.innerHTML = `
     <div class="profile-section">
       <h3 class="section-title"><span class="section-pip"></span>Welcome Messages</h3>
-      <p class="tab-desc">Send a message when new members join your server. Available placeholders: <code>{user}</code> (mention), <code>{username}</code> (display name), <code>{server}</code>, <code>{count}</code> (member count).</p>
+      <p class="tab-desc">Sent when a new member joins. Placeholders: <code>{user}</code> (mention), <code>{username}</code>, <code>{server}</code>, <code>{count}</code>.</p>
 
       <div class="economy-fields">
 
@@ -632,49 +629,83 @@ function renderWelcomeTab(settings) {
             <span class="tc-icon">👋</span>
             <span class="tc-label">Welcome messages</span>
             <span class="tc-switch"><span class="tc-knob"></span></span>
-            <input type="checkbox" ${enabledChecked} id="wc-enabled" hidden>
+            <input type="checkbox" ${wc.enabled ? "checked" : ""} id="wc-enabled" hidden>
           </label>
         </div>
 
         <div class="economy-field">
-          <div class="ef-header"><label class="ef-label">Channel ID</label></div>
-          <p class="ef-desc">Right-click a channel in Discord → Copy ID. Enable Developer Mode in Discord settings if you don't see this option.</p>
+          <div class="ef-header"><label class="ef-label">Welcome Channel</label></div>
+          <p class="ef-desc">Channel where the welcome message is sent.</p>
           <div class="ef-input-row">
-            <input type="text" class="number-input" id="wc-channel-id" value="${channelVal}" placeholder="e.g. 1234567890123456789">
+            <select class="number-input" id="wc-channel" style="flex:1;">
+              <option value="">— select a channel —</option>
+            </select>
           </div>
         </div>
 
         <div class="economy-field">
           <div class="ef-header">
-            <label class="ef-label">Welcome Message</label>
+            <label class="ef-label">Message / Embed Description</label>
             <button class="btn-reset" id="wc-msg-reset">Reset</button>
           </div>
-          <p class="ef-desc">Placeholders: {user}, {username}, {server}, {count}</p>
+          <p class="ef-desc">Shown as the embed description (or plain text if embed is off).</p>
           <div class="ef-input-row">
-            <textarea class="number-input" id="wc-message" style="flex:1;min-height:60px;resize:vertical;">${messageVal}</textarea>
+            <textarea class="number-input" id="wc-message" style="flex:1;min-height:60px;resize:vertical;">${escapeHtml(wc.message || "Welcome {user} to **{server}**!")}</textarea>
           </div>
         </div>
 
         <div class="economy-field">
           <div class="ef-header"><label class="ef-label">Use Embed</label></div>
-          <p class="ef-desc">Send as a formatted embed instead of plain text.</p>
+          <p class="ef-desc">Send as a rich embed instead of plain text.</p>
           <label class="toggle-card${embedOn}" id="wc-embed-toggle">
-            <span class="tc-icon">🎨</span>
+            <span class="tc-icon">🖼️</span>
             <span class="tc-label">Embed style</span>
             <span class="tc-switch"><span class="tc-knob"></span></span>
-            <input type="checkbox" ${embedChecked} id="wc-use-embed" hidden>
+            <input type="checkbox" ${wc.use_embed !== false ? "checked" : ""} id="wc-use-embed" hidden>
           </label>
         </div>
 
-        <div class="economy-field" id="wc-embed-fields"${embedHidden}>
-          <div class="ef-header"><label class="ef-label">Embed Title <span class="hint">(optional)</span></label></div>
-          <p class="ef-desc">Placeholders: {username}, {server}</p>
-          <div class="ef-input-row" style="margin-bottom:12px">
-            <input type="text" class="number-input" id="wc-embed-title" value="${embedTitleVal}" placeholder="Welcome to {server}!">
+        <div id="wc-embed-fields"${embedHide}>
+          <div class="economy-field">
+            <div class="ef-header"><label class="ef-label">Embed Title <span class="hint">(optional)</span></label></div>
+            <p class="ef-desc">Placeholders: {username}, {server}</p>
+            <div class="ef-input-row">
+              <input type="text" class="number-input" id="wc-embed-title" value="${escapeHtml(wc.embed_title || "")}" placeholder="Welcome to {server}!">
+            </div>
           </div>
-          <div class="ef-header"><label class="ef-label">Embed Colour</label></div>
-          <div class="ef-input-row">
-            <input type="color" id="wc-embed-color" value="${embedColorVal}" style="width:48px;height:36px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:transparent;">
+
+          <div class="economy-field">
+            <div class="ef-header"><label class="ef-label">Embed Colour</label></div>
+            <div class="ef-input-row" style="gap:8px;">
+              <input type="color" id="wc-embed-color" value="${escapeHtml(wc.embed_color || "#5b8ef7")}" style="width:48px;height:36px;padding:2px;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:transparent;">
+              <input type="text" class="number-input" id="wc-embed-color-text" value="${escapeHtml(wc.embed_color || "#5b8ef7")}" placeholder="#5b8ef7" style="flex:1;">
+            </div>
+          </div>
+
+          <div class="economy-field">
+            <div class="ef-header"><label class="ef-label">Embed Footer <span class="hint">(optional)</span></label></div>
+            <div class="ef-input-row">
+              <input type="text" class="number-input" id="wc-embed-footer" value="${escapeHtml(wc.embed_footer || "")}" placeholder="Footer text…">
+            </div>
+          </div>
+
+          <div class="economy-field">
+            <div class="ef-header"><label class="ef-label">Embed Image URL <span class="hint">(optional)</span></label></div>
+            <p class="ef-desc">Large image shown at the bottom of the embed.</p>
+            <div class="ef-input-row">
+              <input type="text" class="number-input" id="wc-embed-image" value="${escapeHtml(wc.embed_image_url || "")}" placeholder="https://…">
+            </div>
+          </div>
+
+          <div class="economy-field">
+            <div class="ef-header"><label class="ef-label">Avatar Thumbnail</label></div>
+            <p class="ef-desc">Show the new member's avatar in the top-right corner of the embed.</p>
+            <label class="toggle-card${thumbOn}" id="wc-thumb-toggle">
+              <span class="tc-icon">👤</span>
+              <span class="tc-label">Show avatar</span>
+              <span class="tc-switch"><span class="tc-knob"></span></span>
+              <input type="checkbox" ${wc.embed_thumbnail !== false ? "checked" : ""} id="wc-embed-thumbnail" hidden>
+            </label>
           </div>
         </div>
 
@@ -684,6 +715,7 @@ function renderWelcomeTab(settings) {
     </div>
   `;
 
+  // Toggle handlers
   const enabledToggle = document.getElementById("wc-enabled-toggle");
   const enabledInput  = document.getElementById("wc-enabled");
   enabledToggle.addEventListener("click", () => {
@@ -702,28 +734,60 @@ function renderWelcomeTab(settings) {
     embedFields.style.display = on ? "" : "none";
   });
 
+  const thumbToggle = document.getElementById("wc-thumb-toggle");
+  const thumbInput  = document.getElementById("wc-embed-thumbnail");
+  thumbToggle.addEventListener("click", () => {
+    const on = !thumbInput.checked;
+    thumbInput.checked = on;
+    thumbToggle.classList.toggle("is-on", on);
+  });
+
+  // Color picker sync
+  const colorPicker = document.getElementById("wc-embed-color");
+  const colorText   = document.getElementById("wc-embed-color-text");
+  colorPicker.addEventListener("input", () => { colorText.value = colorPicker.value; });
+  colorText.addEventListener("input", () => {
+    if (/^#[0-9a-fA-F]{6}$/.test(colorText.value)) colorPicker.value = colorText.value;
+  });
+
   document.getElementById("wc-msg-reset").addEventListener("click", () => {
-    document.getElementById("wc-message").value = "Welcome to **{server}**, {user}! 🎉";
+    document.getElementById("wc-message").value = "Welcome {user} to **{server}**!";
   });
 
   document.getElementById("wc-save-btn").addEventListener("click", saveWelcomeSettings);
+
+  // Populate channel selector
+  if (currentGuildId) {
+    api.getChannels(currentGuildId).then(data => {
+      const sel = document.getElementById("wc-channel");
+      if (!sel) return;
+      (data.channels || []).forEach(ch => {
+        const opt = document.createElement("option");
+        opt.value = ch.id;
+        opt.textContent = "#" + ch.name;
+        if (String(wc.channel_id) === ch.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+  }
 }
 
 async function saveWelcomeSettings() {
   const btn = document.getElementById("wc-save-btn");
   btn.disabled = true;
   btn.textContent = "Saving…";
-
-  const welcome_config = {
-    enabled:     document.getElementById("wc-enabled").checked,
-    channel_id:  document.getElementById("wc-channel-id").value.trim() || null,
-    message:     document.getElementById("wc-message").value,
-    use_embed:   document.getElementById("wc-use-embed").checked,
-    embed_title: document.getElementById("wc-embed-title").value.trim(),
-    embed_color: document.getElementById("wc-embed-color").value,
-  };
-
   try {
+    const welcome_config = {
+      enabled:         document.getElementById("wc-enabled").checked,
+      channel_id:      document.getElementById("wc-channel")?.value || null,
+      message:         document.getElementById("wc-message").value,
+      use_embed:       document.getElementById("wc-use-embed").checked,
+      embed_title:     document.getElementById("wc-embed-title")?.value.trim() || "",
+      embed_color:     document.getElementById("wc-embed-color-text")?.value || document.getElementById("wc-embed-color")?.value || "#5b8ef7",
+      embed_footer:    document.getElementById("wc-embed-footer")?.value.trim() || "",
+      embed_image_url: document.getElementById("wc-embed-image")?.value.trim() || "",
+      embed_thumbnail: document.getElementById("wc-embed-thumbnail")?.checked ?? true,
+    };
     await api.saveSettings(currentGuildId, { welcome_config });
     showToast("Welcome settings saved!", "success");
   } catch (err) {
@@ -1117,6 +1181,438 @@ function renderEventTextTab(settings) {
       });
       fields.appendChild(div);
     });
+  });
+}
+
+// ── Leveling Tab ──────────────────────────────────────
+
+async function renderLevelingTab(settings) {
+  const container = document.getElementById("tab-leveling");
+  if (!container) return;
+  container.innerHTML = '<div class="loading-spinner" style="margin:40px auto;"></div>';
+
+  let levelingData;
+  try {
+    levelingData = await api.getLeveling(currentGuildId);
+  } catch (e) {
+    container.innerHTML = '<p style="color:var(--muted);padding:24px;">Failed to load leveling data.</p>';
+    return;
+  }
+
+  const lc = levelingData.leveling_config || {};
+  let milestonesData = (lc.milestones || []).map(m => ({ ...m }));
+
+  const enabledOn = lc.enabled ? " is-on" : "";
+
+  container.innerHTML = `
+    <div class="profile-section">
+      <h3 class="section-title"><span class="section-pip"></span>Leveling System</h3>
+      <p class="tab-desc">Members earn XP for chatting. Disabled by default. When enabled with milestones, Discord roles are auto-created for each milestone that has a role name set.</p>
+
+      <div class="economy-fields">
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Enable Leveling</label></div>
+          <label class="toggle-card${enabledOn}" id="lv-enabled-toggle">
+            <span class="tc-icon">⭐</span>
+            <span class="tc-label">Leveling System</span>
+            <span class="tc-switch"><span class="tc-knob"></span></span>
+            <input type="checkbox" ${lc.enabled ? "checked" : ""} id="lv-enabled" hidden>
+          </label>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Level-Up Channel</label></div>
+          <p class="ef-desc">Where to post level-up announcements. Leave blank to announce in the same channel as the message.</p>
+          <div class="ef-input-row">
+            <select class="number-input" id="lv-channel" style="flex:1;">
+              <option value="">— same channel as message —</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Level-Up Message</label></div>
+          <p class="ef-desc">Placeholders: <code>{user}</code> (mention), <code>{level}</code></p>
+          <div class="ef-input-row">
+            <input type="text" class="number-input" id="lv-message" style="flex:1;" value="${escapeHtml(lc.levelup_message || "🎉 {user} just reached **Level {level}**!")}" placeholder="🎉 {user} just reached **Level {level}**!">
+          </div>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">XP Per Level</label></div>
+          <p class="ef-desc">Base XP to reach level 1. Each level costs more. Formula: level × XP per level. Default: 100.</p>
+          <div class="ef-input-row">
+            <input type="number" class="number-input" id="lv-xp-per-level" min="10" max="10000" step="10" value="${lc.xp_per_level || 100}" style="width:100px;">
+          </div>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">XP Per Message</label></div>
+          <p class="ef-desc">Random XP awarded for each message (with cooldown).</p>
+          <div class="ef-input-row" style="gap:8px;align-items:center;">
+            <input type="number" class="number-input" id="lv-xp-min" min="1" max="1000" value="${lc.xp_per_message_min || 5}" style="width:80px;"> <span style="color:var(--muted)">to</span>
+            <input type="number" class="number-input" id="lv-xp-max" min="1" max="1000" value="${lc.xp_per_message_max || 15}" style="width:80px;"> <span style="color:var(--muted)">XP</span>
+          </div>
+        </div>
+
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">XP Cooldown</label></div>
+          <p class="ef-desc">Minimum seconds between XP awards for the same user. Default: 60.</p>
+          <div class="ef-input-row" style="gap:8px;align-items:center;">
+            <input type="number" class="number-input" id="lv-cooldown" min="5" max="3600" value="${lc.xp_cooldown_seconds || 60}" style="width:100px;"> <span style="color:var(--muted)">seconds</span>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:28px;"><span class="section-pip"></span>Level Milestones</h3>
+      <p class="tab-desc">Configure rewards at specific levels. Leave <strong>Role Name</strong> blank to skip role creation. Role ID is filled in automatically after the first save.</p>
+
+      <div id="lv-milestones-list" style="margin-bottom:12px;"></div>
+      <button class="btn-outline" id="lv-add-milestone" style="margin-bottom:16px;">+ Add Milestone</button>
+
+      <button id="lv-save-btn" class="btn-save profile-save" style="margin-top:8px;">Save Leveling Settings</button>
+    </div>
+
+    <div class="profile-section" style="margin-top:16px;">
+      <h3 class="section-title"><span class="section-pip"></span>XP Leaderboard</h3>
+      <div id="lv-leaderboard"></div>
+    </div>
+  `;
+
+  // Toggle
+  const lvToggle = document.getElementById("lv-enabled-toggle");
+  const lvInput  = document.getElementById("lv-enabled");
+  lvToggle.addEventListener("click", () => {
+    const on = !lvInput.checked;
+    lvInput.checked = on;
+    lvToggle.classList.toggle("is-on", on);
+  });
+
+  // Channel selector
+  if (currentGuildId) {
+    api.getChannels(currentGuildId).then(data => {
+      const sel = document.getElementById("lv-channel");
+      if (!sel) return;
+      (data.channels || []).forEach(ch => {
+        const opt = document.createElement("option");
+        opt.value = ch.id;
+        opt.textContent = "#" + ch.name;
+        if (String(lc.channel_id) === ch.id) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }).catch(() => {});
+  }
+
+  // Milestones renderer
+  const milestonesContainer = document.getElementById("lv-milestones-list");
+
+  function renderMilestones() {
+    milestonesContainer.innerHTML = "";
+    if (milestonesData.length === 0) {
+      milestonesContainer.innerHTML = '<p style="color:var(--muted);font-size:13px;">No milestones configured yet.</p>';
+      return;
+    }
+    milestonesData.forEach((m, idx) => {
+      const row = document.createElement("div");
+      row.style.cssText = "display:grid;grid-template-columns:70px 1fr 80px 80px 100px auto;gap:8px;align-items:end;margin-bottom:10px;";
+      row.innerHTML = `
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Level</label>
+          <input type="number" class="number-input" min="1" max="9999" value="${m.level || ""}" data-field="level" style="width:100%;text-align:center;">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Role Name (auto-created)</label>
+          <input type="text" class="number-input" value="${escapeHtml(m.role_name || "")}" data-field="role_name" placeholder="e.g. Rising Star" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">✨ Stardust</label>
+          <input type="number" class="number-input" min="0" value="${m.stardust || 0}" data-field="stardust" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">🎰 Chips</label>
+          <input type="number" class="number-input" min="0" value="${m.chips || 0}" data-field="chips" style="width:100%;">
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Role ID (auto)</label>
+          <input type="text" class="number-input" value="${m.role_id || ""}" data-field="role_id" placeholder="—" style="width:100%;opacity:0.5;" readonly>
+        </div>
+        <button class="btn-danger-sm" data-idx="${idx}" title="Remove milestone" style="padding:6px 10px;align-self:end;">✕</button>
+      `;
+      row.querySelectorAll("input[data-field]").forEach(inp => {
+        inp.addEventListener("input", () => {
+          const f = inp.dataset.field;
+          if (f === "level" || f === "stardust" || f === "chips") {
+            milestonesData[idx][f] = parseInt(inp.value) || 0;
+          } else {
+            milestonesData[idx][f] = inp.value;
+          }
+        });
+      });
+      row.querySelector(".btn-danger-sm").addEventListener("click", () => {
+        milestonesData.splice(parseInt(row.querySelector(".btn-danger-sm").dataset.idx), 1);
+        renderMilestones();
+      });
+      milestonesContainer.appendChild(row);
+    });
+  }
+  renderMilestones();
+
+  document.getElementById("lv-add-milestone").addEventListener("click", () => {
+    milestonesData.push({ level: "", role_name: "", stardust: 0, chips: 0, role_id: null });
+    renderMilestones();
+  });
+
+  // Leaderboard
+  const lbContainer = document.getElementById("lv-leaderboard");
+  const lb = levelingData.leaderboard || [];
+  if (lb.length > 0) {
+    const medals = ["🥇", "🥈", "🥉"];
+    lbContainer.innerHTML = lb.map((u, i) => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+        <span style="font-size:18px;width:28px;text-align:center;">${medals[i] || "#" + (i + 1)}</span>
+        ${u.avatar ? `<img src="${u.avatar}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">` : '<div style="width:32px;height:32px;border-radius:50%;background:var(--border);"></div>'}
+        <div style="flex:1;">
+          <div style="font-weight:600;font-size:14px;">${escapeHtml(u.username)}</div>
+          <div style="font-size:12px;color:var(--muted);">Level ${u.level} · ${u.xp.toLocaleString()} XP</div>
+        </div>
+      </div>
+    `).join("");
+  } else {
+    lbContainer.innerHTML = '<p style="color:var(--muted);font-size:13px;">No XP earned yet.</p>';
+  }
+
+  // Save
+  document.getElementById("lv-save-btn").addEventListener("click", async () => {
+    const btn = document.getElementById("lv-save-btn");
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+    try {
+      const cfg = {
+        enabled:               document.getElementById("lv-enabled").checked,
+        channel_id:            document.getElementById("lv-channel").value || null,
+        levelup_message:       document.getElementById("lv-message").value || "🎉 {user} just reached **Level {level}**!",
+        xp_per_level:          parseInt(document.getElementById("lv-xp-per-level").value) || 100,
+        xp_per_message_min:    parseInt(document.getElementById("lv-xp-min").value) || 5,
+        xp_per_message_max:    parseInt(document.getElementById("lv-xp-max").value) || 15,
+        xp_cooldown_seconds:   parseInt(document.getElementById("lv-cooldown").value) || 60,
+        announce_levelup:      true,
+        milestones: milestonesData
+          .filter(m => parseInt(m.level) > 0)
+          .map(m => ({
+            level:     parseInt(m.level),
+            role_name: m.role_name || "",
+            role_id:   m.role_id ? parseInt(m.role_id) : null,
+            stardust:  parseInt(m.stardust) || 0,
+            chips:     parseInt(m.chips) || 0,
+          })),
+      };
+      const res = await api.saveLeveling(currentGuildId, cfg);
+      if (res.milestones) {
+        milestonesData = res.milestones.map(m => ({ ...m }));
+        renderMilestones();
+      }
+      btn.textContent = "✓ Saved";
+      showToast("Leveling settings saved!" + (res.errors && res.errors.length ? " Some roles failed." : ""), res.errors && res.errors.length ? "error" : "success");
+      setTimeout(() => { btn.textContent = "Save Leveling Settings"; btn.disabled = false; }, 2500);
+    } catch (e) {
+      btn.textContent = "Save Leveling Settings";
+      btn.disabled = false;
+      showToast("Failed to save leveling settings.", "error");
+    }
+  });
+}
+
+// ── Reaction Roles Tab ────────────────────────────────
+
+async function renderReactionRolesTab() {
+  const container = document.getElementById("tab-reaction-roles");
+  if (!container) return;
+  container.innerHTML = '<div class="loading-spinner" style="margin:40px auto;"></div>';
+
+  let panels = [], channels = [], roles = [];
+  try {
+    const [rrData, chData, rolesData] = await Promise.all([
+      api.getReactionRoles(currentGuildId),
+      api.getChannels(currentGuildId),
+      api.getRoles(currentGuildId),
+    ]);
+    panels   = rrData.panels      || [];
+    channels = chData.channels    || [];
+    roles    = rolesData.roles    || [];
+  } catch (e) {
+    container.innerHTML = '<p style="color:var(--muted);padding:24px;">Failed to load reaction roles.</p>';
+    return;
+  }
+
+  const channelName = id => { const c = channels.find(x => x.id === String(id)); return c ? "#" + c.name : "#" + id; };
+  const roleName    = id => { const r = roles.find(x => x.id === String(id)); return r ? r.name : String(id); };
+
+  container.innerHTML = `
+    <div class="profile-section">
+      <h3 class="section-title"><span class="section-pip"></span>Reaction Role Panels</h3>
+      <p class="tab-desc">Create a panel in a channel. Members react with an emoji to get (or remove) a role — similar to Carl-bot reaction roles.</p>
+      <div id="rr-panels-list" style="margin-bottom:20px;"></div>
+    </div>
+
+    <div class="profile-section" style="margin-top:16px;">
+      <h3 class="section-title"><span class="section-pip"></span>Create New Panel</h3>
+      <div class="economy-fields">
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Channel</label></div>
+          <div class="ef-input-row">
+            <select class="number-input" id="rr-new-channel" style="flex:1;">
+              <option value="">— select a channel —</option>
+              ${channels.map(c => `<option value="${c.id}">#${escapeHtml(c.name)}</option>`).join("")}
+            </select>
+          </div>
+        </div>
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Panel Title</label></div>
+          <div class="ef-input-row">
+            <input type="text" class="number-input" id="rr-new-title" placeholder="Get your roles!" style="flex:1;">
+          </div>
+        </div>
+        <div class="economy-field">
+          <div class="ef-header"><label class="ef-label">Description <span class="hint">(optional)</span></label></div>
+          <div class="ef-input-row">
+            <textarea class="number-input" id="rr-new-desc" rows="2" placeholder="React below to assign yourself a role." style="flex:1;resize:vertical;"></textarea>
+          </div>
+        </div>
+      </div>
+      <button id="rr-create-btn" class="btn-save profile-save" style="margin-top:8px;">Create Panel</button>
+    </div>
+  `;
+
+  const panelsList = document.getElementById("rr-panels-list");
+
+  function renderPanels() {
+    panelsList.innerHTML = "";
+    if (panels.length === 0) {
+      panelsList.innerHTML = '<p style="color:var(--muted);font-size:13px;">No panels yet.</p>';
+      return;
+    }
+    panels.forEach(panel => {
+      const card = document.createElement("div");
+      card.style.cssText = "border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;";
+      card.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
+          <div>
+            <div style="font-weight:600;font-size:15px;">${escapeHtml(panel.title || "Reaction Roles")}</div>
+            <div style="font-size:12px;color:var(--muted);">${channelName(panel.channel_id)} · msg ${panel.message_id}</div>
+            ${panel.description ? `<div style="font-size:13px;color:var(--muted);margin-top:3px;">${escapeHtml(panel.description)}</div>` : ""}
+          </div>
+          <button class="btn-danger-sm rr-del-panel" data-id="${panel.id}" style="white-space:nowrap;">✕ Delete</button>
+        </div>
+
+        <div class="rr-entries" style="margin-bottom:12px;">
+          ${panel.entries.length === 0 ? '<p style="color:var(--muted);font-size:13px;">No role entries yet.</p>' : panel.entries.map(e => `
+            <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);">
+              <span style="font-size:20px;min-width:28px;text-align:center;">${escapeHtml(e.emoji)}</span>
+              <span style="flex:1;font-size:14px;">@${escapeHtml(roleName(e.role_id))}${e.label ? ` <span style="color:var(--muted);">(${escapeHtml(e.label)})</span>` : ""}</span>
+              <button class="btn-danger-sm rr-rem-entry" data-pid="${panel.id}" data-eid="${e.id}">✕</button>
+            </div>
+          `).join("")}
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;">
+          <div>
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Emoji</label>
+            <input type="text" class="number-input rr-emoji" placeholder="😀" style="width:65px;">
+          </div>
+          <div style="flex:1;min-width:140px;">
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Role</label>
+            <select class="number-input rr-role" style="width:100%;">
+              <option value="">— select role —</option>
+              ${roles.map(r => `<option value="${r.id}">${escapeHtml(r.name)}</option>`).join("")}
+            </select>
+          </div>
+          <div style="flex:1;min-width:100px;">
+            <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Label <span class="hint">(opt.)</span></label>
+            <input type="text" class="number-input rr-label" placeholder="VIP Member" style="width:100%;">
+          </div>
+          <button class="btn-outline rr-add-entry" data-pid="${panel.id}" style="align-self:end;">+ Add</button>
+        </div>
+      `;
+      panelsList.appendChild(card);
+    });
+
+    panelsList.querySelectorAll(".rr-del-panel").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        if (!confirm("Delete this panel? The Discord message will also be removed.")) return;
+        btn.disabled = true;
+        try {
+          await api.deleteReactionRolePanel(currentGuildId, btn.dataset.id);
+          panels = panels.filter(p => String(p.id) !== btn.dataset.id);
+          renderPanels();
+          showToast("Panel deleted.", "success");
+        } catch (e) {
+          showToast("Failed to delete panel.", "error");
+          btn.disabled = false;
+        }
+      });
+    });
+
+    panelsList.querySelectorAll(".rr-rem-entry").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          await api.removeReactionRoleEntry(currentGuildId, btn.dataset.pid, btn.dataset.eid);
+          const panel = panels.find(p => String(p.id) === btn.dataset.pid);
+          if (panel) panel.entries = panel.entries.filter(e => String(e.id) !== btn.dataset.eid);
+          renderPanels();
+          showToast("Entry removed.", "success");
+        } catch (e) {
+          showToast("Failed to remove entry.", "error");
+          btn.disabled = false;
+        }
+      });
+    });
+
+    panelsList.querySelectorAll(".rr-add-entry").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const row = btn.closest("div[style]");
+        const emoji  = row.querySelector(".rr-emoji").value.trim();
+        const roleId = row.querySelector(".rr-role").value;
+        const label  = row.querySelector(".rr-label").value.trim();
+        if (!emoji || !roleId) { showToast("Emoji and role are required.", "error"); return; }
+        btn.disabled = true;
+        try {
+          const res = await api.addReactionRoleEntry(currentGuildId, btn.dataset.pid, { emoji, role_id: parseInt(roleId), label });
+          const panel = panels.find(p => String(p.id) === btn.dataset.pid);
+          if (panel) panel.entries.push({ id: res.entry_id, emoji, role_id: parseInt(roleId), label });
+          renderPanels();
+          showToast("Entry added!", "success");
+        } catch (e) {
+          showToast("Failed to add entry: " + e.message, "error");
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  renderPanels();
+
+  document.getElementById("rr-create-btn").addEventListener("click", async () => {
+    const btn       = document.getElementById("rr-create-btn");
+    const channelId = document.getElementById("rr-new-channel").value;
+    const title     = document.getElementById("rr-new-title").value.trim();
+    const desc      = document.getElementById("rr-new-desc").value.trim();
+    if (!channelId) { showToast("Please select a channel.", "error"); return; }
+    btn.disabled = true;
+    btn.textContent = "Creating…";
+    try {
+      const res = await api.createReactionRolePanel(currentGuildId, { channel_id: parseInt(channelId), title, description: desc });
+      panels.push({ id: res.panel_id, channel_id: parseInt(channelId), message_id: res.message_id, title, description: desc, entries: [] });
+      renderPanels();
+      document.getElementById("rr-new-channel").value = "";
+      document.getElementById("rr-new-title").value   = "";
+      document.getElementById("rr-new-desc").value    = "";
+      showToast("Panel created!", "success");
+    } catch (e) {
+      showToast("Failed: " + e.message, "error");
+    }
+    btn.textContent = "Create Panel";
+    btn.disabled = false;
   });
 }
 
