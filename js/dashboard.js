@@ -1614,8 +1614,8 @@ async function renderReactionRolesTab() {
     btn.disabled = true;
     btn.textContent = "Creating…";
     try {
-      const res = await api.createReactionRolePanel(currentGuildId, { channel_id: parseInt(channelId), title, description: desc });
-      panels.push({ id: res.panel_id, channel_id: parseInt(channelId), message_id: res.message_id, title, description: desc, entries: [] });
+      const res = await api.createReactionRolePanel(currentGuildId, { channel_id: channelId, title, description: desc });
+      panels.push({ id: res.panel_id, channel_id: channelId, message_id: res.message_id, title, description: desc, entries: [] });
       renderPanels();
       document.getElementById("rr-new-channel").value = "";
       document.getElementById("rr-new-title").value   = "";
