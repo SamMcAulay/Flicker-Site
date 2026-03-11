@@ -106,11 +106,15 @@ async function loadGuilds() {
         sel.value = currentGuildId;
         return;
       }
+      localStorage.setItem("flickerSelectedGuild", sel.value);
       loadSettings(sel.value);
     });
 
     setStatus("connected", "● Connected");
-    await loadSettings(guilds[0].id);
+    const savedGuildId = localStorage.getItem("flickerSelectedGuild");
+    const initialGuild = guilds.find(g => g.id === savedGuildId) ? savedGuildId : guilds[0].id;
+    sel.value = initialGuild;
+    await loadSettings(initialGuild);
   } catch (err) {
     setStatus("error", "✕ Connection failed");
     console.error(err);
