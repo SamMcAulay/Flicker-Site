@@ -806,21 +806,28 @@ function renderProfileTab(settings) {
   const container = document.getElementById("tab-profile");
   const profile = settings.bot_profile || {};
   const avatarUrl = profile.avatar_url || "";
+  const globalAvatarUrl = profile.global_avatar_url || "";
+  const hasGuildAvatar = profile.has_guild_avatar || false;
   const nickname  = profile.nickname  || "";
   const prefix    = settings.prefix   || "!";
+
+  const avatarNote = hasGuildAvatar
+    ? `<p class="ef-desc" style="color:var(--amber)">This server has a custom avatar set. It overrides the bot's global avatar (set in the Discord Developer Portal) for this server only.</p>`
+    : `<p class="ef-desc">No server-specific avatar set — using the global bot avatar. Upload one below to override it for this server only.</p>`;
 
   container.innerHTML = `
     <div class="profile-section">
       <h3 class="section-title"><span class="section-pip"></span>Bot Profile</h3>
-      <p class="tab-desc">Customise how Flicker appears in this server. Avatar and nickname are per-server.</p>
+      <p class="tab-desc">Customise how Flicker appears in this server. Avatar and nickname are per-server and do not affect other servers.</p>
 
       <div class="profile-card">
         <div class="profile-avatar-area">
           ${avatarUrl ? `<img id="profile-avatar-preview" class="profile-avatar" src="${escapeHtml(avatarUrl)}" alt="Bot avatar">` : `<div id="profile-avatar-preview" class="profile-avatar profile-avatar-placeholder">🤖</div>`}
           <div class="profile-avatar-actions">
+            ${avatarNote}
             <label class="btn-upload" for="profile-avatar-input">Upload Avatar</label>
             <input type="file" id="profile-avatar-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
-            <button id="profile-avatar-reset" class="btn-reset">Reset to Global</button>
+            ${hasGuildAvatar ? `<button id="profile-avatar-reset" class="btn-reset">Reset to Global</button>` : ""}
           </div>
         </div>
 
@@ -870,13 +877,16 @@ function renderProfileTab(settings) {
     reader.readAsDataURL(file);
   });
 
-  // Reset avatar
-  document.getElementById("profile-avatar-reset").addEventListener("click", () => {
-    pendingAvatarData = ""; // empty string signals "remove guild avatar"
-    const preview = document.getElementById("profile-avatar-preview");
-    if (preview.tagName === "IMG") preview.src = avatarUrl;
-    showToast("Avatar will reset to global on save.", "info");
-  });
+  // Reset avatar (only shown when a guild avatar is active)
+  const resetBtn = document.getElementById("profile-avatar-reset");
+  if (resetBtn) {
+    resetBtn.addEventListener("click", () => {
+      pendingAvatarData = ""; // empty string signals "remove guild avatar"
+      const preview = document.getElementById("profile-avatar-preview");
+      if (preview.tagName === "IMG") preview.src = globalAvatarUrl || avatarUrl;
+      showToast("Avatar will reset to global on save.", "info");
+    });
+  }
 
   // Save profile
   document.getElementById("profile-save-btn").addEventListener("click", saveProfile);
@@ -898,8 +908,8 @@ async function saveProfile() {
 
   try {
     const res = await api.updateProfile(currentGuildId, payload);
-    if (res.errors && res.errors.length) {
-      showToast("Partial save: " + res.errors.join("; "), "error");
+    if (res && res.errors && res.errors.length) {
+      showToast("Partial save — " + res.errors.join("; "), "error");
     } else {
       showToast("Profile updated!", "success");
     }
@@ -908,7 +918,7 @@ async function saveProfile() {
     currentSettings = await api.getSettings(currentGuildId);
     renderProfileTab(currentSettings);
   } catch (err) {
-    showToast("Failed to update profile.", "error");
+    showToast("Failed to update profile: " + (err.message || err), "error");
   } finally {
     btn.disabled = false;
     btn.textContent = "Update Profile";
