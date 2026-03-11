@@ -818,20 +818,19 @@ function renderProfileTab(settings) {
   container.innerHTML = `
     <div class="profile-section">
       <h3 class="section-title"><span class="section-pip"></span>Bot Profile</h3>
-      <p class="tab-desc">Customise how Flicker appears in this server. Avatar and nickname are per-server and do not affect other servers.</p>
+      <p class="tab-desc">Customise how Flicker appears in this server. Changes are per-server and do not affect other servers.</p>
 
       <div class="profile-card">
-        <div class="profile-avatar-area">
+        <div class="profile-avatar-col">
           ${avatarUrl ? `<img id="profile-avatar-preview" class="profile-avatar" src="${escapeHtml(avatarUrl)}" alt="Bot avatar">` : `<div id="profile-avatar-preview" class="profile-avatar profile-avatar-placeholder">🤖</div>`}
-          <div class="profile-avatar-actions">
-            ${avatarNote}
-            <label class="btn-upload" for="profile-avatar-input">Upload Avatar</label>
-            <input type="file" id="profile-avatar-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
-            ${hasGuildAvatar ? `<button id="profile-avatar-reset" class="btn-reset">Reset to Global</button>` : ""}
-          </div>
+          <label class="btn-upload" for="profile-avatar-input">Upload Avatar</label>
+          <input type="file" id="profile-avatar-input" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+          ${hasGuildAvatar ? `<button id="profile-avatar-reset" class="btn-reset">Reset to Global</button>` : ""}
         </div>
 
         <div class="profile-fields">
+          ${avatarNote}
+
           <div class="profile-field">
             <label class="ef-label">Nickname</label>
             <p class="ef-desc">Leave empty to use the bot's global username.</p>
@@ -843,10 +842,10 @@ function renderProfileTab(settings) {
             <p class="ef-desc">The character(s) before commands, e.g. <strong>${escapeHtml(prefix)}pet</strong></p>
             <input type="text" id="profile-prefix" class="text-input profile-prefix-input" value="${escapeHtml(prefix)}" placeholder="!" maxlength="5">
           </div>
+
+          <button id="profile-save-btn" class="btn-save profile-save">Update Profile</button>
         </div>
       </div>
-
-      <button id="profile-save-btn" class="btn-save profile-save">Update Profile</button>
     </div>
   `;
 
