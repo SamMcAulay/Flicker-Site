@@ -1506,6 +1506,7 @@ async function renderReactionRolesTab() {
     }
     panels.forEach(panel => {
       const card = document.createElement("div");
+      card.className = "rr-card";
       card.style.cssText = "border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:12px;";
       card.innerHTML = `
         <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:12px;">
@@ -1583,16 +1584,16 @@ async function renderReactionRolesTab() {
 
     panelsList.querySelectorAll(".rr-add-entry").forEach(btn => {
       btn.addEventListener("click", async () => {
-        const row = btn.closest("div[style]");
-        const emoji  = row.querySelector(".rr-emoji").value.trim();
-        const roleId = row.querySelector(".rr-role").value;
-        const label  = row.querySelector(".rr-label").value.trim();
+        const card  = btn.closest(".rr-card");
+        const emoji  = card.querySelector(".rr-emoji").value.trim();
+        const roleId = card.querySelector(".rr-role").value;
+        const label  = card.querySelector(".rr-label").value.trim();
         if (!emoji || !roleId) { showToast("Emoji and role are required.", "error"); return; }
         btn.disabled = true;
         try {
-          const res = await api.addReactionRoleEntry(currentGuildId, btn.dataset.pid, { emoji, role_id: parseInt(roleId), label });
+          const res = await api.addReactionRoleEntry(currentGuildId, btn.dataset.pid, { emoji, role_id: roleId, label });
           const panel = panels.find(p => String(p.id) === btn.dataset.pid);
-          if (panel) panel.entries.push({ id: res.entry_id, emoji, role_id: parseInt(roleId), label });
+          if (panel) panel.entries.push({ id: res.entry_id, emoji, role_id: roleId, label });
           renderPanels();
           showToast("Entry added!", "success");
         } catch (e) {

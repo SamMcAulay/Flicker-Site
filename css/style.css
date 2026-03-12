@@ -770,6 +770,51 @@ body::after {
   border-color: var(--border-2);
 }
 
+.btn-danger-sm {
+  padding: 4px 10px;
+  background: var(--danger-dim);
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  font-size: 11px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-danger-sm:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn-danger-sm:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-outline {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-size: 12px;
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-outline:hover {
+  background: var(--accent-dim);
+}
+
+.btn-outline:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* ══════════════════════════════════════════════════════
    AUTO-RESPONDER TAB
    ══════════════════════════════════════════════════════ */
