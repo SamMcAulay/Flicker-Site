@@ -332,6 +332,8 @@ const ECONOMY_SECTIONS = [
       { type: "range", label: "3rd Place", minKey: "drop_3_min", maxKey: "drop_3_max", minDefault: 6,  maxDefault: 8,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 6–8" },
       { type: "range", label: "4th Place", minKey: "drop_4_min", maxKey: "drop_4_max", minDefault: 4,  maxDefault: 6,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 4–6" },
       { type: "range", label: "5th Place", minKey: "drop_5_min", maxKey: "drop_5_max", minDefault: 1,  maxDefault: 4,  min: 1, max: 500, step: 1, unit: "✨", desc: "Default: 1–4" },
+      { type: "single", label: "Catch Window",      key: "drop_timeout",        default: 15, min: 5, max: 120, step: 1, unit: "s", desc: "Seconds players have to type 'catch'. Default: 15" },
+      { type: "single", label: "Auto-Delete Delay", key: "drop_delete_timeout", default: 15, min: 5, max: 120, step: 1, unit: "s", desc: "Seconds before the result embed auto-deletes. Default: 15" },
     ],
   },
   {
@@ -1008,8 +1010,6 @@ const EVENT_TEXT_SECTIONS = [
       { key: "drop_title",        label: "Embed Title",     desc: "Title of the drop embed." },
       { key: "drop_desc",         label: "Description",     desc: "Opening line of the embed." },
       { key: "drop_catch_prompt", label: "Catch Prompt",    desc: "Text shown next to each open slot." },
-      { key: "drop_win",          label: "Win Message",     desc: "Sent when at least one person caught the drop." },
-      { key: "drop_lose",         label: "No One Caught",   desc: "Sent when nobody caught it in time." },
     ],
   },
   {
