@@ -141,6 +141,7 @@ async function loadSettings(guildId) {
     renderProfileTab(currentSettings);
     renderLevelingTab(currentSettings);
     renderReactionRolesTab();
+    renderTicketsTab();
   } catch (err) {
     console.error("Failed to load settings:", err);
     showToast("Failed to load settings.", "error");
@@ -1627,6 +1628,444 @@ async function renderReactionRolesTab() {
     }
     btn.textContent = "Create Panel";
     btn.disabled = false;
+  });
+}
+
+// ── Tickets Tab ─────────────────────────────────────────────────────────
+// NOTE: All user-visible strings are passed through escapeHtml() before
+// being inserted into the DOM via innerHTML, following the same pattern
+// used by renderReactionRolesTab, renderResponderTab, and other tabs.
+
+async function renderTicketsTab() {
+  const container = document.getElementById("tab-tickets");
+  if (!container) return;
+  container.textContent = "Loading ticket data...";
+
+  let data;
+  try {
+    data = await api.getTickets(currentGuildId);
+  } catch (e) {
+    container.textContent = "Failed to load ticket data.";
+    return;
+  }
+
+  const config = data.config || {};
+  const panels = data.panels || [];
+  const summary = data.tickets_summary || {};
+
+  let channels = [], roles = [];
+  try {
+    const [chRes, roRes] = await Promise.all([
+      api.getChannels(currentGuildId),
+      api.getRoles(currentGuildId),
+    ]);
+    channels = chRes.channels || [];
+    roles = roRes.roles || [];
+  } catch (_) {}
+
+  const textChannels = channels.filter(c => !c.name.startsWith("-----"));
+
+  // Build the full tab HTML — all dynamic values are escaped via escapeHtml()
+  const html = buildTicketsTabHtml(config, panels, summary, textChannels, roles);
+  container.innerHTML = html;
+
+  wireTicketsTabEvents(config, panels, textChannels, roles);
+}
+
+function buildTicketsTabHtml(config, panels, summary, textChannels, roles) {
+  const channelOptions = textChannels.map(c =>
+    '<option value="' + escapeHtml(c.id) + '"' +
+    (c.id === String(config.log_channel_id) ? ' selected' : '') +
+    '>#' + escapeHtml(c.name) + '</option>'
+  ).join("");
+
+  const channelSelectOptions = textChannels.map(c =>
+    '<option value="' + escapeHtml(c.id) + '">#' + escapeHtml(c.name) + '</option>'
+  ).join("");
+
+  const panelsHtml = panels.map(panel => buildPanelCardHtml(panel, textChannels, roles)).join("");
+
+  return [
+    '<div class="profile-section">',
+    '  <h3 class="section-title"><span class="section-pip"></span>Ticket System</h3>',
+    '  <p class="tab-desc">Configure support ticket panels, categories, and behaviour.</p>',
+    '  <div class="economy-fields" style="margin-top:18px;">',
+
+    // Enabled
+    '    <div class="economy-field">',
+    '      <div class="ef-header"><label class="ef-label">Enabled</label></div>',
+    '      <p class="ef-desc">Enable or disable the ticket system for this server.</p>',
+    '      <div class="ef-input-row">',
+    '        <label class="toggle-card' + (config.enabled ? ' is-on' : '') + '" style="width:auto;min-width:100px;padding:8px 14px;" id="tk-enabled-card">',
+    '          <span class="tc-label">' + (config.enabled ? 'On' : 'Off') + '</span>',
+    '          <span class="tc-switch"><span class="tc-knob"></span></span>',
+    '          <input type="checkbox" id="tk-enabled"' + (config.enabled ? ' checked' : '') + ' hidden>',
+    '        </label>',
+    '      </div>',
+    '    </div>',
+
+    // Log Channel
+    '    <div class="economy-field">',
+    '      <div class="ef-header"><label class="ef-label">Log Channel</label></div>',
+    '      <p class="ef-desc">Channel where ticket transcripts are sent on close.</p>',
+    '      <div class="ef-input-row">',
+    '        <select id="tk-log-channel" class="guild-selector" style="width:240px;">',
+    '          <option value="0">— None —</option>',
+    '          ' + channelOptions,
+    '        </select>',
+    '      </div>',
+    '    </div>',
+
+    // Naming Format
+    '    <div class="economy-field">',
+    '      <div class="ef-header"><label class="ef-label">Naming Format</label></div>',
+    '      <p class="ef-desc">Channel naming pattern. Use <code>{number}</code>, <code>{category}</code>, <code>{username}</code>.</p>',
+    '      <div class="ef-input-row">',
+    '        <input type="text" class="number-input" id="tk-naming" style="width:260px;" value="' + escapeHtml(config.naming_format || 'ticket-{number}') + '">',
+    '      </div>',
+    '    </div>',
+
+    // DM Transcript
+    '    <div class="economy-field">',
+    '      <div class="ef-header"><label class="ef-label">DM Transcript</label></div>',
+    '      <p class="ef-desc">Send the HTML transcript to the ticket creator via DM when closed.</p>',
+    '      <div class="ef-input-row">',
+    '        <label class="toggle-card' + (config.dm_transcript ? ' is-on' : '') + '" style="width:auto;min-width:100px;padding:8px 14px;" id="tk-dm-card">',
+    '          <span class="tc-label">' + (config.dm_transcript ? 'On' : 'Off') + '</span>',
+    '          <span class="tc-switch"><span class="tc-knob"></span></span>',
+    '          <input type="checkbox" id="tk-dm"' + (config.dm_transcript ? ' checked' : '') + ' hidden>',
+    '        </label>',
+    '      </div>',
+    '    </div>',
+
+    // Claim Lock
+    '    <div class="economy-field">',
+    '      <div class="ef-header"><label class="ef-label">Claim Lock</label></div>',
+    '      <p class="ef-desc">When a staff member claims a ticket, only they can respond.</p>',
+    '      <div class="ef-input-row">',
+    '        <label class="toggle-card' + (config.claim_lock ? ' is-on' : '') + '" style="width:auto;min-width:100px;padding:8px 14px;" id="tk-lock-card">',
+    '          <span class="tc-label">' + (config.claim_lock ? 'On' : 'Off') + '</span>',
+    '          <span class="tc-switch"><span class="tc-knob"></span></span>',
+    '          <input type="checkbox" id="tk-lock"' + (config.claim_lock ? ' checked' : '') + ' hidden>',
+    '        </label>',
+    '      </div>',
+    '    </div>',
+
+    // Ticket Counter
+    '    <div class="economy-field">',
+    '      <div class="ef-header"><label class="ef-label">Ticket Counter</label></div>',
+    '      <p class="ef-desc">Next ticket number. Open: ' + (summary.open || 0) + ' | Total: ' + (summary.total || 0) + '</p>',
+    '      <div class="ef-input-row">',
+    '        <input type="text" class="number-input" style="width:100px;" value="' + (config.next_ticket_number || 1) + '" disabled>',
+    '      </div>',
+    '    </div>',
+
+    '  </div>',
+    '  <button id="tk-save-config" class="btn-save profile-save" style="margin-top:18px;">Save Config</button>',
+    '</div>',
+
+    // Panels section
+    '<div class="profile-section" style="margin-top:32px;">',
+    '  <h3 class="section-title"><span class="section-pip"></span>Ticket Panels</h3>',
+    '  <p class="tab-desc">Panels are embeds posted in channels with a button to open tickets.</p>',
+    '  <div id="tk-panels-list">' + (panelsHtml || '<p class="empty-state">No panels yet. Create one below.</p>') + '</div>',
+
+    // New Panel Form
+    '  <div style="margin-top:20px;border:1px solid var(--border);border-radius:8px;padding:18px;background:var(--surface-2);">',
+    '    <h4 style="margin:0 0 14px;color:var(--accent);font-size:14px;">Create New Panel</h4>',
+    '    <div class="economy-fields">',
+    '      <div class="economy-field"><label class="ef-label">Channel</label>',
+    '        <select id="tk-new-channel" class="guild-selector" style="width:220px;"><option value="">— Select —</option>' + channelSelectOptions + '</select></div>',
+    '      <div class="economy-field"><label class="ef-label">Title</label>',
+    '        <input type="text" class="number-input" id="tk-new-title" style="width:260px;" value="Support Tickets" maxlength="256"></div>',
+    '      <div class="economy-field"><label class="ef-label">Description</label>',
+    '        <textarea id="tk-new-desc" class="number-input" style="width:100%;max-width:500px;height:60px;resize:vertical;font-family:inherit;">Click the button below to open a ticket.</textarea></div>',
+    '      <div class="economy-field"><label class="ef-label">Embed Color</label>',
+    '        <div class="ef-input-row" style="gap:8px;">',
+    '          <input type="color" id="tk-new-color" value="#5B8EF7" style="width:40px;height:32px;border:none;background:none;cursor:pointer;">',
+    '          <input type="text" class="number-input" id="tk-new-color-hex" style="width:100px;" value="#5B8EF7" maxlength="7">',
+    '        </div></div>',
+    '      <div class="economy-field"><label class="ef-label">Button Label</label>',
+    '        <input type="text" class="number-input" id="tk-new-btn-label" style="width:180px;" value="Open Ticket" maxlength="80"></div>',
+    '      <div class="economy-field"><label class="ef-label">Button Emoji</label>',
+    '        <input type="text" class="number-input" id="tk-new-btn-emoji" style="width:80px;" value="🎫" maxlength="32"></div>',
+    '      <div class="economy-field"><label class="ef-label">Button Style</label>',
+    '        <select id="tk-new-btn-style" class="guild-selector" style="width:140px;">',
+    '          <option value="1">Blurple</option><option value="2">Grey</option><option value="3">Green</option><option value="4">Red</option>',
+    '        </select></div>',
+    '    </div>',
+
+    '    <div style="margin-top:14px;">',
+    '      <p style="font-size:12px;color:var(--text-3);margin:0 0 6px;">Preview</p>',
+    '      <div id="tk-panel-preview" style="border-left:4px solid #5B8EF7;background:var(--surface-3);border-radius:6px;padding:14px;max-width:500px;">',
+    '        <div style="font-weight:700;font-size:15px;">Support Tickets</div>',
+    '        <div style="font-size:13px;color:var(--text-2);margin-top:4px;">Click the button below to open a ticket.</div>',
+    '      </div>',
+    '    </div>',
+    '    <button id="tk-create-panel" class="btn-save" style="margin-top:14px;">Create Panel</button>',
+    '  </div>',
+    '</div>',
+  ].join("\n");
+}
+
+function buildPanelCardHtml(panel, channels, roles) {
+  const cats = panel.categories || [];
+  const ch = channels.find(c => c.id === panel.channel_id);
+  const chLabel = ch ? "#" + escapeHtml(ch.name) : "#unknown";
+
+  const catsHtml = cats.map(cat => {
+    const staffNames = (cat.staff_roles || []).map(rid => {
+      const r = roles.find(ro => ro.id === rid);
+      return r ? escapeHtml(r.name) : String(rid);
+    }).join(", ") || "All staff";
+    const fieldsCount = (cat.form_fields || []).length;
+
+    return [
+      '<div style="background:var(--surface-3);border-radius:6px;padding:12px;margin-top:8px;border:1px solid var(--border);">',
+      '  <div style="display:flex;justify-content:space-between;align-items:center;">',
+      '    <div>',
+      '      <span style="font-size:16px;">' + escapeHtml(cat.emoji || "📩") + '</span>',
+      '      <strong style="margin-left:4px;">' + escapeHtml(cat.name) + '</strong>',
+      '      <span style="color:var(--text-3);font-size:12px;margin-left:8px;">Limit: ' + (cat.ticket_limit || "unlimited") + ' | Staff: ' + staffNames + (fieldsCount ? ' | Form: ' + fieldsCount + ' field(s)' : '') + '</span>',
+      '    </div>',
+      '    <button class="btn-danger-sm tk-del-cat" data-panel="' + panel.id + '" data-cat="' + cat.id + '" style="font-size:11px;">Delete</button>',
+      '  </div>',
+      cat.description ? '<p style="color:var(--text-2);font-size:12px;margin:4px 0 0;">' + escapeHtml(cat.description) + '</p>' : '',
+      '</div>',
+    ].join("\n");
+  }).join("");
+
+  const rolesCheckboxes = roles.map(r =>
+    '<label style="font-size:12px;color:var(--text);display:flex;align-items:center;gap:4px;cursor:pointer;">' +
+    '<input type="checkbox" value="' + escapeHtml(r.id) + '" class="tk-role-cb">' + escapeHtml(r.name) + '</label>'
+  ).join("");
+
+  return [
+    '<div style="border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:12px;background:var(--surface);">',
+    '  <div style="display:flex;justify-content:space-between;align-items:center;">',
+    '    <div><strong style="font-size:15px;">' + escapeHtml(panel.title) + '</strong>',
+    '      <span style="color:var(--text-3);font-size:12px;margin-left:10px;">' + chLabel + ' — ' + cats.length + ' category(s)</span></div>',
+    '    <button class="btn-danger-sm tk-del-panel" data-panel="' + panel.id + '" style="font-size:11px;">Delete Panel</button>',
+    '  </div>',
+    catsHtml,
+
+    // Add category form
+    '<div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">',
+    '  <details><summary style="cursor:pointer;color:var(--accent);font-size:13px;font-weight:600;">+ Add Category</summary>',
+    '  <div style="margin-top:10px;" class="economy-fields">',
+    '    <div class="economy-field"><label class="ef-label">Name</label>',
+    '      <input type="text" class="number-input tk-cat-name" style="width:200px;" maxlength="100" placeholder="General Support" data-panel="' + panel.id + '"></div>',
+    '    <div class="economy-field"><label class="ef-label">Emoji</label>',
+    '      <input type="text" class="number-input tk-cat-emoji" style="width:60px;" maxlength="32" value="📩" data-panel="' + panel.id + '"></div>',
+    '    <div class="economy-field"><label class="ef-label">Description</label>',
+    '      <input type="text" class="number-input tk-cat-desc" style="width:100%;max-width:400px;" maxlength="200" placeholder="Brief description" data-panel="' + panel.id + '"></div>',
+    '    <div class="economy-field"><label class="ef-label">Opening Message</label>',
+    '      <textarea class="number-input tk-cat-opening" style="width:100%;max-width:400px;height:50px;resize:vertical;font-family:inherit;" placeholder="Message shown in the ticket channel" data-panel="' + panel.id + '"></textarea></div>',
+    '    <div class="economy-field"><label class="ef-label">Staff Roles</label>',
+    '      <div class="tk-cat-roles" data-panel="' + panel.id + '" style="display:flex;flex-wrap:wrap;gap:6px;">' + rolesCheckboxes + '</div></div>',
+    '    <div class="economy-field"><label class="ef-label">Ticket Limit <span class="hint">(0 = unlimited)</span></label>',
+    '      <input type="number" class="number-input tk-cat-limit" style="width:80px;" value="1" min="0" max="50" data-panel="' + panel.id + '"></div>',
+    '    <div class="economy-field"><label class="ef-label">Form Fields <span class="hint">(max 5, one per line: label|style|required)</span></label>',
+    '      <p class="ef-desc">Style: <code>short</code> or <code>paragraph</code>. Required: <code>true</code> or <code>false</code>.</p>',
+    '      <textarea class="number-input tk-cat-fields" style="width:100%;max-width:500px;height:70px;resize:vertical;font-family:inherit;" placeholder="Describe your issue|paragraph|true" data-panel="' + panel.id + '"></textarea></div>',
+    '    <button class="btn-save tk-add-cat" data-panel="' + panel.id + '" style="font-size:13px;padding:6px 16px;">Add Category</button>',
+    '  </div></details>',
+    '</div>',
+    '</div>',
+  ].join("\n");
+}
+
+function wireTicketsTabEvents(config, panels, textChannels, roles) {
+  // Toggle wiring
+  function wireToggle(cardId, inputId) {
+    const card = document.getElementById(cardId);
+    const input = document.getElementById(inputId);
+    if (!card || !input) return;
+    card.addEventListener("click", () => {
+      input.checked = !input.checked;
+      card.classList.toggle("is-on", input.checked);
+      card.querySelector(".tc-label").textContent = input.checked ? "On" : "Off";
+    });
+  }
+  wireToggle("tk-enabled-card", "tk-enabled");
+  wireToggle("tk-dm-card", "tk-dm");
+  wireToggle("tk-lock-card", "tk-lock");
+
+  // Color picker sync
+  const colorPicker = document.getElementById("tk-new-color");
+  const colorHex = document.getElementById("tk-new-color-hex");
+  if (colorPicker && colorHex) {
+    colorPicker.addEventListener("input", () => {
+      colorHex.value = colorPicker.value.toUpperCase();
+      updatePanelPreview();
+    });
+    colorHex.addEventListener("input", () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(colorHex.value)) colorPicker.value = colorHex.value;
+      updatePanelPreview();
+    });
+  }
+
+  // Live preview
+  function updatePanelPreview() {
+    const preview = document.getElementById("tk-panel-preview");
+    if (!preview) return;
+    const title = document.getElementById("tk-new-title").value || "Support Tickets";
+    const desc = document.getElementById("tk-new-desc").value || "Click the button below to open a ticket.";
+    const color = document.getElementById("tk-new-color-hex").value || "#5B8EF7";
+    preview.style.borderLeftColor = color;
+    const titleDiv = preview.querySelector("div:first-child") || preview.appendChild(document.createElement("div"));
+    titleDiv.style.cssText = "font-weight:700;font-size:15px;";
+    titleDiv.textContent = title;
+    let descDiv = preview.querySelector("div:nth-child(2)");
+    if (!descDiv) { descDiv = document.createElement("div"); preview.appendChild(descDiv); }
+    descDiv.style.cssText = "font-size:13px;color:var(--text-2);margin-top:4px;";
+    descDiv.textContent = desc;
+  }
+  ["tk-new-title", "tk-new-desc"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", updatePanelPreview);
+  });
+
+  // Save config
+  const saveBtn = document.getElementById("tk-save-config");
+  if (saveBtn) saveBtn.addEventListener("click", async () => {
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Saving...";
+    try {
+      await api.saveTicketConfig(currentGuildId, {
+        enabled: document.getElementById("tk-enabled").checked ? 1 : 0,
+        log_channel_id: document.getElementById("tk-log-channel").value || "0",
+        naming_format: document.getElementById("tk-naming").value.trim() || "ticket-{number}",
+        dm_transcript: document.getElementById("tk-dm").checked ? 1 : 0,
+        claim_lock: document.getElementById("tk-lock").checked ? 1 : 0,
+      });
+      showToast("Ticket config saved!", "success");
+    } catch (e) {
+      showToast("Failed to save: " + e.message, "error");
+    }
+    saveBtn.disabled = false;
+    saveBtn.textContent = "Save Config";
+  });
+
+  // Create panel
+  const createBtn = document.getElementById("tk-create-panel");
+  if (createBtn) createBtn.addEventListener("click", async () => {
+    const channelId = document.getElementById("tk-new-channel").value;
+    if (!channelId) return showToast("Select a channel.", "error");
+
+    createBtn.disabled = true;
+    createBtn.textContent = "Creating...";
+    try {
+      const colorHexVal = document.getElementById("tk-new-color-hex").value || "#5B8EF7";
+      const colorInt = parseInt(colorHexVal.replace("#", ""), 16);
+      await api.createTicketPanel(currentGuildId, {
+        channel_id: channelId,
+        title: document.getElementById("tk-new-title").value.trim() || "Support Tickets",
+        description: document.getElementById("tk-new-desc").value.trim() || "Click the button below to open a ticket.",
+        color: colorInt,
+        button_label: document.getElementById("tk-new-btn-label").value.trim() || "Open Ticket",
+        button_emoji: document.getElementById("tk-new-btn-emoji").value.trim() || "🎫",
+        button_style: parseInt(document.getElementById("tk-new-btn-style").value) || 1,
+      });
+      showToast("Panel created!", "success");
+      renderTicketsTab();
+    } catch (e) {
+      showToast("Failed: " + e.message, "error");
+    }
+    createBtn.disabled = false;
+    createBtn.textContent = "Create Panel";
+  });
+
+  // Delete panel buttons
+  const list = document.getElementById("tk-panels-list");
+  if (!list) return;
+
+  list.querySelectorAll(".tk-del-panel").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this panel and all its categories?")) return;
+      btn.disabled = true;
+      try {
+        await api.deleteTicketPanel(currentGuildId, btn.dataset.panel);
+        showToast("Panel deleted.", "success");
+        renderTicketsTab();
+      } catch (e) {
+        showToast("Failed: " + e.message, "error");
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Delete category buttons
+  list.querySelectorAll(".tk-del-cat").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("Delete this category?")) return;
+      btn.disabled = true;
+      try {
+        await api.deleteTicketCategory(currentGuildId, btn.dataset.panel, btn.dataset.cat);
+        showToast("Category deleted.", "success");
+        renderTicketsTab();
+      } catch (e) {
+        showToast("Failed: " + e.message, "error");
+        btn.disabled = false;
+      }
+    });
+  });
+
+  // Add category buttons
+  list.querySelectorAll(".tk-add-cat").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const pid = btn.dataset.panel;
+      const nameEl = list.querySelector('.tk-cat-name[data-panel="' + pid + '"]');
+      const name = nameEl ? nameEl.value.trim() : "";
+      if (!name) return showToast("Category name required.", "error");
+
+      const emojiEl = list.querySelector('.tk-cat-emoji[data-panel="' + pid + '"]');
+      const descEl = list.querySelector('.tk-cat-desc[data-panel="' + pid + '"]');
+      const openingEl = list.querySelector('.tk-cat-opening[data-panel="' + pid + '"]');
+      const limitEl = list.querySelector('.tk-cat-limit[data-panel="' + pid + '"]');
+      const fieldsEl = list.querySelector('.tk-cat-fields[data-panel="' + pid + '"]');
+      const rolesContainer = list.querySelector('.tk-cat-roles[data-panel="' + pid + '"]');
+
+      const staffRoles = [];
+      if (rolesContainer) {
+        rolesContainer.querySelectorAll(".tk-role-cb:checked").forEach(cb => staffRoles.push(cb.value));
+      }
+
+      const formFields = [];
+      if (fieldsEl && fieldsEl.value.trim()) {
+        fieldsEl.value.trim().split("\n").forEach(line => {
+          const parts = line.split("|");
+          if (parts[0]) {
+            formFields.push({
+              label: parts[0].trim(),
+              style: (parts[1] || "short").trim(),
+              required: (parts[2] || "true").trim() === "true",
+              placeholder: (parts[3] || "").trim(),
+            });
+          }
+        });
+      }
+
+      btn.disabled = true;
+      btn.textContent = "Adding...";
+      try {
+        await api.createTicketCategory(currentGuildId, pid, {
+          name: name,
+          emoji: emojiEl ? emojiEl.value.trim() || "📩" : "📩",
+          description: descEl ? descEl.value.trim() : "",
+          opening_message: openingEl ? openingEl.value.trim() : "",
+          staff_roles: staffRoles,
+          ticket_limit: limitEl ? parseInt(limitEl.value) || 1 : 1,
+          form_fields: formFields,
+        });
+        showToast("Category added!", "success");
+        renderTicketsTab();
+      } catch (e) {
+        showToast("Failed: " + e.message, "error");
+      }
+      btn.disabled = false;
+      btn.textContent = "Add Category";
+    });
   });
 }
 

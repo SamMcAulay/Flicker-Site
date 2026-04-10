@@ -95,4 +95,40 @@ const api = {
       method: "POST",
       body: JSON.stringify({ welcome_config: welcomeConfig }),
     }),
+
+  // Tickets
+  getTickets: (guildId) => apiRequest("/api/tickets/" + guildId),
+  saveTicketConfig: (guildId, config) =>
+    apiRequest("/api/tickets/" + guildId + "/config", {
+      method: "POST",
+      body: JSON.stringify(config),
+    }),
+  createTicketPanel: (guildId, data) =>
+    apiRequest("/api/tickets/" + guildId + "/panels", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateTicketPanel: (guildId, panelId, data) =>
+    apiRequest("/api/tickets/" + guildId + "/panels/" + panelId, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteTicketPanel: (guildId, panelId) =>
+    apiRequest("/api/tickets/" + guildId + "/panels/" + panelId, {
+      method: "DELETE",
+    }),
+  createTicketCategory: (guildId, panelId, data) =>
+    apiRequest("/api/tickets/" + guildId + "/panels/" + panelId + "/categories", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateTicketCategory: (guildId, panelId, catId, data) =>
+    apiRequest("/api/tickets/" + guildId + "/panels/" + panelId + "/categories/" + catId, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteTicketCategory: (guildId, panelId, catId) =>
+    apiRequest("/api/tickets/" + guildId + "/panels/" + panelId + "/categories/" + catId, {
+      method: "DELETE",
+    }),
 };

@@ -775,6 +775,9 @@
         <a href="#shop" class="toc-link">
           <span class="toc-icon">&#128722;</span> Shop
         </a>
+        <a href="#tickets" class="toc-link">
+          <span class="toc-icon">&#127915;</span> Support Tickets
+        </a>
         <a href="#voice" class="toc-link">
           <span class="toc-icon">&#127897;</span> Voice Channels
         </a>
@@ -2052,6 +2055,80 @@
 
           <div class="info-box blue">
             <strong>Don't see any listings?</strong> The shop is entirely set up by your server's admins. If nothing is posted yet, check back later or ask an admin.
+          </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════════
+             SUPPORT TICKETS
+             ═══════════════════════════════════════════════ -->
+        <section class="guide-section" id="tickets">
+          <div class="guide-section-header">
+            <span class="guide-section-icon">&#127915;</span>
+            <span class="guide-section-title">SUPPORT TICKETS</span>
+          </div>
+          <p class="guide-section-desc">
+            A full-featured support ticket system. Admins set up ticket panels with a button that members can click to open a private ticket channel. Tickets support categories, custom intake forms, staff claiming, and HTML transcripts.
+          </p>
+
+          <div class="sub-heading">How it works</div>
+
+          <div class="cmd-info-grid" style="margin-bottom: 16px;">
+            <div class="cmd-info-cell">
+              <div class="cic-label">Opening a ticket</div>
+              <div class="cic-value">Click the button on a ticket panel embed. If the panel has multiple categories, you'll be asked to pick one. If the category has a form, you'll fill it out first.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Ticket channel</div>
+              <div class="cic-value">A private channel is created that only you, Flicker, and the designated staff roles can see.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Claiming</div>
+              <div class="cic-value">Staff can click the Claim button to take ownership of a ticket. If "Claim Lock" is enabled, only the claimer can respond after claiming.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Closing</div>
+              <div class="cic-value">Click the Close button, then confirm. An HTML transcript is generated and sent to the log channel. The ticket channel is deleted after a short delay.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Transcripts</div>
+              <div class="cic-value">Full HTML transcripts with message content, avatars, timestamps, attachments, and embeds. Optionally sent to the ticket creator via DM.</div>
+            </div>
+            <div class="cmd-info-cell">
+              <div class="cic-label">Ticket limit</div>
+              <div class="cic-value">Each category can limit how many open tickets a user can have at once (default: 1). Set to 0 for unlimited.</div>
+            </div>
+          </div>
+
+          <div class="sub-heading">Admin commands</div>
+
+          <div class="cmd-card">
+            <div class="cmd-header">
+              <code class="cmd-name">!ticket-setup</code>
+              <span class="cmd-badge admin">Admin</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-desc">Quick setup: creates a "Tickets" category and a <code>#ticket-logs</code> channel, then enables the ticket system. Use the dashboard for full configuration.</div>
+            </div>
+          </div>
+
+          <div class="cmd-card">
+            <div class="cmd-header">
+              <code class="cmd-name">!ticket-panel [#channel]</code>
+              <span class="cmd-badge admin">Admin</span>
+            </div>
+            <div class="cmd-body">
+              <div class="cmd-desc">Opens a modal to create a ticket panel in the specified channel (or the current channel). Fill in the panel title, description, and an initial category name.</div>
+            </div>
+          </div>
+
+          <div class="cmd-notes" style="margin-bottom: 20px;">
+            <div class="cmd-note"><span class="note-dot"></span>Run <code>!ticket-setup</code> first to initialise the system, then create panels via the dashboard or <code>!ticket-panel</code>.</div>
+            <div class="cmd-note"><span class="note-dot"></span>Panels, categories, staff roles, intake forms, and all settings can be configured from the Tickets tab in the online dashboard.</div>
+            <div class="cmd-note"><span class="note-dot"></span>Each panel can have multiple categories. If there's only one category, clicking the button opens a ticket directly without a selection step.</div>
+          </div>
+
+          <div class="info-box blue">
+            <strong>Dashboard configuration</strong> Open the Flicker dashboard, select your server, and go to the Tickets tab to manage panels, categories, staff roles, form fields, transcript settings, and more.
           </div>
         </section>
 
