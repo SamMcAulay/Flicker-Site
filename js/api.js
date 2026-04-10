@@ -2,7 +2,7 @@
 //  Flicker Dashboard — API wrapper
 // ─────────────────────────────────────────────────────
 async function apiRequest(path, options = {}) {
-  const token = sessionStorage.getItem("flicker_token");
+  const token = localStorage.getItem("flicker_token");
   const res = await fetch(FLICKER_API + path, {
     headers: {
       "Content-Type": "application/json",
@@ -11,7 +11,7 @@ async function apiRequest(path, options = {}) {
     ...options,
   });
   if (res.status === 401 || res.status === 403) {
-    sessionStorage.removeItem("flicker_token");
+    localStorage.removeItem("flicker_token");
     window.location.href = "/";
     return null;
   }
