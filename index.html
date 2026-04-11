@@ -59,7 +59,7 @@
     // ── Handle OAuth callback (token in URL fragment) ──
     const hash = window.location.hash;
     if (hash.startsWith('#token=')) {
-      sessionStorage.setItem('flicker_token', hash.slice(7));
+      localStorage.setItem('flicker_token', hash.slice(7));
       history.replaceState(null, '', window.location.pathname);
       window.location.href = '/dashboard';
     }
